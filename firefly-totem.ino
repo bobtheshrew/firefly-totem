@@ -1,7 +1,7 @@
 #include <FastLED.h>
 
 #define LED_PIN     7
-#define NUM_LEDS    87
+#define NUM_LEDS    70//87
 
 CRGB leds[NUM_LEDS];
 CRGB black = CRGB::Black;
@@ -31,7 +31,63 @@ void setup() {
 
 void loop() {
 
-  //teal bounce
+  //gradient
+  //0 is a color
+  //NUM_LEDS-1 is a color
+  //Other leds in between
+  //is each channel 0's color + ((i/NUM_LEDS)*(difference))
+
+  leds[0] = CRGB(255,0,0); 
+  leds[NUM_LEDS-1] = CRGB(0,0,255); 
+  
+  int r;
+  int g;
+  int b;
+  
+  int h;
+  int s;
+  int v;
+  float ratio;
+
+  int startH=0;
+  int endH=255;
+
+  for (int j = 0; j < 1000; j++){
+    startH = min(startH + (((random(0,2)*2)-1)*4),255); 
+    endH = max(startH,min(endH + (((random(0,2)*2)-1)*4),255)); 
+    CHSV startCHSV=CHSV((startH), 255, 255);  
+    CHSV endCHSV=CHSV((endH), 255, 255);  
+    
+    leds[0] = startCHSV; 
+    leds[NUM_LEDS-1] = endCHSV; 
+  
+    for (int i = 1; i < (NUM_LEDS-1); i++)
+          {
+
+          ratio=float(i)/float(NUM_LEDS);
+          r = int( leds[0].r + ( ratio * (leds[NUM_LEDS-1].r-leds[0].r) )   );
+          g = int( leds[0].g + ( ratio * (leds[NUM_LEDS-1].g-leds[0].g) )   );
+          b = int( leds[0].b + ( ratio * (leds[NUM_LEDS-1].b-leds[0].b) )   );
+
+          //h = int( leds[0].h + ( ratio * (leds[NUM_LEDS-1].h-leds[0].h) )   );
+          //s = int( leds[0].s + ( ratio * (leds[NUM_LEDS-1].s-leds[0].s) )   );
+          //v = int( leds[0].v + ( ratio * (leds[NUM_LEDS-1].v-leds[0].v) )   );
+          
+          leds[i]= CRGB(r,g,b);
+          //leds[i]= CHSV(h,s,v);
+
+          //fill_gradient(leds,0,startCHSV,NUM_LEDS-1,endCHSV,FORWARD_HUES);
+          }
+      FastLED.show();
+      delay(60);
+    }
+  
+  
+  
+  FastLED.show();
+  delay(10000);
+
+ /* //teal bounce
   for (int i = 0; i < 2; i++)
   {
       fadeAFrameFast();
@@ -47,8 +103,8 @@ void loop() {
       //sparkle();
   }
   fadeToBlack();
-
-
+*/
+  fadeToBlack();
   //Rainbow Pulses
   for (int i = 0; i < 2; i++)
   {
