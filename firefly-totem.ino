@@ -15,6 +15,7 @@ static uint8_t hue = 0;
 void setup() {
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
 
+  //Initialization lights 
   leds[0] = CRGB(255, 0, 0);
   FastLED.show();
   delay(500);  
@@ -30,6 +31,9 @@ void setup() {
 }
 
 void loop() {
+
+  //TODO: Star field
+  //Ping pong
 
   //gradient
   //0 is a color
@@ -81,9 +85,6 @@ void loop() {
       FastLED.show();
       delay(60);
     }
-  
-  
-  
   FastLED.show();
   delay(10000);
 
@@ -102,7 +103,6 @@ void loop() {
       }
       //sparkle();
   }
-  fadeToBlack();
 */
   fadeToBlack();
   //Rainbow Pulses
