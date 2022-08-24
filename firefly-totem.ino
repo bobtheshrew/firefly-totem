@@ -31,10 +31,27 @@ void setup() {
 
 void loop() {
 
-  //Rainbow Pulses
-  for (int i = 0; i < (NUM_LEDS*5); i++)
+  //teal bounce
+  for (int i = 0; i < 2; i++)
   {
-    
+      fadeAFrameFast();
+      for (int j = 0; j < 8; j++){
+        for (int ii = 0; ii < (NUM_LEDS)*2; ii++)
+        {
+        leds[ii]=CHSV(32*j, 255, 255);
+        fadeAll(250);
+        FastLED.show();
+        delay(25);
+        }
+      }
+      //sparkle();
+  }
+  fadeToBlack();
+
+
+  //Rainbow Pulses
+  for (int i = 0; i < 2; i++)
+  {
       fadeAFrameFast();
       for (int j = 0; j < 8; j++){
         for (int ii = 0; ii < (NUM_LEDS); ii++)
@@ -46,8 +63,6 @@ void loop() {
         }
       }
       //sparkle();
-      
-     
   }
   fadeToBlack();
     
