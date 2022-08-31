@@ -10,30 +10,88 @@ CRGB white = CRGB::NavajoWhite;
 int min = 0;
 int max = NUM_LEDS-1;
 int r = 0;
+int r2 = 0;
 static uint8_t hue = 0;
 
 void setup() {
-  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  Serial.begin(9600);
+  Serial.print("Starting setup...");
+  Serial.println();
 
+  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
   //Initialization lights 
   leds[0] = CRGB(255, 0, 0);
   FastLED.show();
-  delay(500);  
+  delay(50);  
   leds[1] = CRGB(0, 255, 0);
   FastLED.show();
-  delay(500);
+  delay(50);
   leds[2] = CRGB(0, 0, 255);
   FastLED.show();
-  delay(500);
+  delay(50);
   leds[69] = CRGB::White;
   FastLED.show();
-  delay(500);
+  delay(50);
+  Serial.print("Setup complete.");
+  Serial.println();
 }
 
 void loop() {
 
   //TODO: Star field
+
+  
+  //Reverse Chasers
+  for (int i = (NUM_LEDS*5); i > 0 ; i--)
+  {
+    fadeAFrameFast();
+    for (int j = 0; j < 8; j++){
+      leds[(i+(10*j))%NUM_LEDS]=CHSV(32*j, 0, 255);
+    }
+    //sparkle();
+    delay(36);
+    FastLED.show();
+  }
+  fadeToBlack();
+
+  
+  
   //Ping pong
+  for (int i = 0; i < (NUM_LEDS*80); i++)
+  {
+      fadeAll(240);  
+      float deg = i%360;
+      float rad = deg * PI / 180;
+      int sinI = int((NUM_LEDS/2) + (sin(rad)*(NUM_LEDS/2)) );
+      //Serial.print(sin(rad)*(NUM_LEDS/2));
+      //Serial.println();
+      leds[sinI]=CHSV(i%255, 255 , 255);          
+      delay(5);
+      FastLED.show();
+    }
+  fadeToBlack();
+
+  //Fire Flies
+  for (int i = 0; i < (NUM_LEDS*6); i++)
+  {
+    fadeAll(210);
+    //TODO EVEN / ODD Fade different rates
+    //TODO Double Pluse
+    
+    //random LEDs
+    r = random(min, max);           
+    if ((i%10)==0){
+      leds[r]=CHSV(96, 255, 255);      
+      leds[r2]=CHSV(96, 255, 255);      
+      r2=r;
+    }
+    delay(50);
+    FastLED.show();
+  }
+  fadeToBlack();
+
+  
+
 
   //gradient
   //0 is a color
@@ -56,9 +114,13 @@ void loop() {
   int startH=0;
   int endH=255;
 
-  for (int j = 0; j < 1000; j++){
-    startH = min(startH + (((random(0,2)*2)-1)*4),255); 
-    endH = max(startH,min(endH + (((random(0,2)*2)-1)*4),255)); 
+  for (int j = 0; j < 750; j++){
+    startH++; // =        min(startH + 1,255); 
+
+    float deg = (j*2)%360;
+    float rad = deg * PI / 180;
+    endH = startH + (sin(rad)*64);
+//    endH = startH + ((j%64)-32);  // + max(startH,min(endH + (((random(0,2)*2)-1)*4),255)); 
     CHSV startCHSV=CHSV((startH), 255, 255);  
     CHSV endCHSV=CHSV((endH), 255, 255);  
     
@@ -81,12 +143,14 @@ void loop() {
           //leds[i]= CHSV(h,s,v);
 
           //fill_gradient(leds,0,startCHSV,NUM_LEDS-1,endCHSV,FORWARD_HUES);
+          fill_gradient(leds,0,startCHSV,NUM_LEDS-1,endCHSV,SHORTEST_HUES);
           }
       FastLED.show();
-      delay(60);
+      //delay(60);
     }
   FastLED.show();
-  delay(10000);
+  fadeToBlack();
+
 
  /* //teal bounce
   for (int i = 0; i < 2; i++)
@@ -105,7 +169,8 @@ void loop() {
   }
 */
   fadeToBlack();
-  //Rainbow Pulses
+  
+  //Long Rainbow Pulses
   for (int i = 0; i < 2; i++)
   {
       fadeAFrameFast();
@@ -118,22 +183,9 @@ void loop() {
         delay(25);
         }
       }
-      //sparkle();
   }
   fadeToBlack();
-    
-  //orange and green crackles
-  for (int i = 0; i < (NUM_LEDS*5); i++)
-  {
-    fadeAll(230);
-    //random sparkles
-    r = random(min, max);           
-    //32 or 96 
-    leds[r]=CHSV(32+(64*(i%2)), 255, 255);
-    delay(50);
-    FastLED.show();
-  }
-  fadeToBlack();
+
   
   //red yellow Chasers
   for (int i = 0; i < (NUM_LEDS*5); i++)
@@ -222,6 +274,11 @@ void loop() {
   fadeToBlack();
 }
 
+
+
+
+
+
 //maximize brightness of random pixles that are not black
 void sparkle()
 {
@@ -288,4 +345,6 @@ void fadeToBlack()
     FastLED.show();
   }
 }
+
+//Color Chart https://github.com/FastLED/FastLED/wiki/Pixel-reference#chsv
 // EOF
