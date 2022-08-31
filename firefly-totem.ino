@@ -12,6 +12,7 @@ int max = NUM_LEDS-1;
 int r = 0;
 int r2 = 0;
 static uint8_t hue = 0;
+unsigned long doneMillis = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -37,16 +38,72 @@ void setup() {
 }
 
 void loop() {
-
+  //TODO rewite each routine as a function to return a frame? or accept a time to run?
   //TODO: Star field
 
-  
-  //Reverse Chasers
-  for (int i = (NUM_LEDS*5); i > 0 ; i--)
+
+
+  //yellow sparkle
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
+    for (int i = 2; i < NUM_LEDS; i++) {
+      //iluminate the star w/ 1 pixel streamer
+      leds[i-2] = CRGB(255, 165, 0);          
+      leds[i-1] = CRGB(255, 200, 128);    
+      leds[i] = white;          
+      sparkle();
+      delay(18);
+      FastLED.show();
+      fadeAFrame();
+    }
+    fadeToBlack();
+  }
+  fadeToBlack();
+
+  //red streaks
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    for (int i = 0; i < NUM_LEDS; i++) 
+    {
+      //iluminate the star
+      leds[i] = CRGB(255, 0, 0);          
+      delay(18);
+      FastLED.show();
+      fadeAFrame();
+      }
+      fadeToBlack();
+  }
+  fadeToBlack();
+
+  //rainbow crackle
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    for (int i = 1; i < NUM_LEDS; i++) {
+      //iluminate the star
+      hue = hue + 16;
+      leds[i] = CHSV(hue, 255, 255);
+      crackle();
+      delay(18);
+      FastLED.show();
+      fadeAFrame();
+    }
+    fadeToBlack();
+  }
+  fadeToBlack();
+
+  //Reverse Chasers
+  //for (int i = (NUM_LEDS*5); i > 0 ; i--)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    static int i = 0;
+    i++;
     fadeAFrameFast();
     for (int j = 0; j < 8; j++){
-      leds[(i+(10*j))%NUM_LEDS]=CHSV(32*j, 0, 255);
+      leds[(NUM_LEDS-1)-((i+(10*j))%NUM_LEDS)]=CHSV(32*j, 0, 255);
     }
     //sparkle();
     delay(36);
@@ -54,27 +111,27 @@ void loop() {
   }
   fadeToBlack();
 
-  
-  
-  //Ping pong
-  for (int i = 0; i < (NUM_LEDS*80); i++)
+  //Rainbow ping pong
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
-      fadeAll(240);  
-      float deg = i%360;
+      static int i = 0;
+      float deg = (i+270)%360;
       float rad = deg * PI / 180;
       int sinI = int((NUM_LEDS/2) + (sin(rad)*(NUM_LEDS/2)) );
-      //Serial.print(sin(rad)*(NUM_LEDS/2));
-      //Serial.println();
+      i++;
       leds[sinI]=CHSV(i%255, 255 , 255);          
       delay(5);
       FastLED.show();
+      fadeAll(240);  
     }
   fadeToBlack();
 
   //Fire Flies
-  for (int i = 0; i < (NUM_LEDS*6); i++)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
-    fadeAll(210);
+    static int i = 0;
     //TODO EVEN / ODD Fade different rates
     //TODO Double Pluse
     
@@ -87,11 +144,10 @@ void loop() {
     }
     delay(50);
     FastLED.show();
+    fadeAll(210);
+    i++;
   }
   fadeToBlack();
-
-  
-
 
   //gradient
   //0 is a color
@@ -120,7 +176,7 @@ void loop() {
     float deg = (j*2)%360;
     float rad = deg * PI / 180;
     endH = startH + (sin(rad)*64);
-//    endH = startH + ((j%64)-32);  // + max(startH,min(endH + (((random(0,2)*2)-1)*4),255)); 
+    
     CHSV startCHSV=CHSV((startH), 255, 255);  
     CHSV endCHSV=CHSV((endH), 255, 255);  
     
@@ -171,15 +227,16 @@ void loop() {
   fadeToBlack();
   
   //Long Rainbow Pulses
-  for (int i = 0; i < 2; i++)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
       fadeAFrameFast();
       for (int j = 0; j < 8; j++){
         for (int ii = 0; ii < (NUM_LEDS); ii++)
         {
         leds[ii]=CHSV(32*j, 255, 255);
+        FastLED.show();  //show after each pixel
         fadeAll(250);
-        FastLED.show();
         delay(25);
         }
       }
@@ -188,8 +245,10 @@ void loop() {
 
   
   //red yellow Chasers
-  for (int i = 0; i < (NUM_LEDS*5); i++)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
+    static int i = 0;
     fadeAFrameFast();
     for (int j = 0; j < 8; j++){
       leds[(i+(11*j))%NUM_LEDS]=CHSV(50*(j%2), 255, 255);
@@ -197,11 +256,13 @@ void loop() {
     //sparkle();
     delay(18);
     FastLED.show();
+    i++;
   }
   fadeToBlack();
     
   //Just crackles
-  for (int i = 0; i < (NUM_LEDS*5); i++)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
     fadeAFrame();
     //random sparkles
@@ -213,8 +274,10 @@ void loop() {
   fadeToBlack();
 
   //Rainbow Chasers
-  for (int i = 0; i < (NUM_LEDS*5); i++)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
+    static int i=0;
     fadeAFrameFast();
     for (int j = 0; j < 8; j++){
       leds[(i+(11*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
@@ -222,60 +285,29 @@ void loop() {
     //sparkle();
     delay(36);
     FastLED.show();
+    i++;
   }
   fadeToBlack();
 
   //Blue and Violet Chasers
-  for (int i = 0; i < (NUM_LEDS*5); i++)
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
   {
-    fadeAll(200);
+    static int i=0;
     leds[(i)%NUM_LEDS]=CRGB::Blue;
     //leds[(i+25)%NUM_LEDS]=CRGB::DarkViolet;
     leds[(i+44)%NUM_LEDS]=CRGB::DarkViolet;
     //leds[(i+75)%NUM_LEDS]=CRGB::DarkViolet;
     delay(36);
     FastLED.show();
+    fadeAll(200);
+    i++;
   }
   fadeToBlack();
 
-  //yellow sparkle
-  for (int i = 2; i < NUM_LEDS; i++) {
-            //iluminate the star
-            leds[i-2] = CRGB(255, 165, 0);          
-            leds[i-1] = CRGB(255, 200, 128);    
-            leds[i] = white;          
-            fadeAFrame();
-            sparkle();
-            delay(18);
-            FastLED.show();
-  }
-  fadeToBlack();
 
-  //red streak
-  for (int i = 0; i < NUM_LEDS; i++) {
-            //iluminate the star
-            leds[i] = CRGB(255, 0, 0);          
-            fadeAFrame();
-            delay(18);
-            FastLED.show();
-  }
-  fadeToBlack();
 
-  //rainbow crackle
-  for (int i = 1; i < NUM_LEDS; i++) {
-            //iluminate the star
-            hue = hue + 16;
-            leds[i] = CHSV(hue, 255, 255);
-            crackle();
-            fadeAFrame();
-            delay(18);
-            FastLED.show();
-  }
-  fadeToBlack();
 }
-
-
-
 
 
 
