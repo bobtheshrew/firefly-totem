@@ -6,6 +6,7 @@
 CRGB leds[NUM_LEDS];
 CRGB black = CRGB::Black;
 CRGB white = CRGB::NavajoWhite;
+CRGB chartreuse = CRGB::Chartreuse;
 
 int min = 0;
 int max = NUM_LEDS-1;
@@ -134,10 +135,16 @@ void loop() {
     static int i = 0;
     //TODO EVEN / ODD Fade different rates
     //TODO Double Pluse
-    
+    //TODO try Chartreuse
+    //Particles sin wave, sub-sin wave?
+    //Don't dim 100%
+    //Lum ramp up also sin wave?
+    //Wave function? Fourier series 
+
     //random LEDs
     r = random(min, max);           
     if ((i%10)==0){
+      
       leds[r]=CHSV(96, 255, 255);      
       leds[r2]=CHSV(96, 255, 255);      
       r2=r;
