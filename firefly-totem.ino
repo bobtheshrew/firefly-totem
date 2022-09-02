@@ -2,6 +2,7 @@
 
 #define LED_PIN     7
 #define NUM_LEDS    70//87
+#define NUM_FIREFLIES    2
 
 CRGB leds[NUM_LEDS];
 CRGB black = CRGB::Black;
@@ -14,6 +15,13 @@ int r = 0;
 int r2 = 0;
 static uint8_t hue = 0;
 unsigned long doneMillis = 0;
+
+struct firefly{
+   int location = 0;
+   CRGB color = CRGB::Chartreuse;
+};
+
+firefly fireflies[NUM_FIREFLIES];
 
 void setup() {
   Serial.begin(9600);
@@ -42,7 +50,36 @@ void loop() {
   //TODO rewite each routine as a function to return a frame? or accept a time to run?
   //TODO: Star field
 
+  //Fireflies
+  doneMillis = millis() + 30000;
+  while (doneMillis > millis())
+  {
+    static CRGB fireflyColor = chartreuse;
+    static int location = 0;
+    static int brightness = 0;
+    static int i = 0;
+    //TODO EVEN / ODD Fade different rates
+    //TODO Double Pluse
+    //TODO try Chartreuse
+    //Particles sin wave, sub-sin wave?
+    //Don't dim 100%
+    //Lum ramp up also sin wave?
+    //Wave function? Fourier series 
 
+    for (int f = 0; f<3; f++){
+      fireflyColor = chartreuse;
+      location = wave(i,0,NUM_LEDS,(f+1),(f*90));
+      brightness = wave(i,0,255,10,0);
+      leds[location] =  fireflyColor.nscale8(brightness);
+    }
+    delay(50);
+    FastLED.show();
+    fadeAll(100);
+    i++;
+    Serial.print(1);
+    Serial.println();
+  }
+  fadeToBlack();
 
   //yellow sparkle
   doneMillis = millis() + 15000;
@@ -58,7 +95,7 @@ void loop() {
       FastLED.show();
       fadeAFrame();
     }
-    fadeToBlack();
+    sparkleToBlack();
   }
   fadeToBlack();
 
@@ -91,7 +128,7 @@ void loop() {
       FastLED.show();
       fadeAFrame();
     }
-    fadeToBlack();
+    sparkleToBlack();
   }
   fadeToBlack();
 
@@ -126,34 +163,6 @@ void loop() {
       FastLED.show();
       fadeAll(240);  
     }
-  fadeToBlack();
-
-  //Fire Flies
-  doneMillis = millis() + 15000;
-  while (doneMillis > millis())
-  {
-    static int i = 0;
-    //TODO EVEN / ODD Fade different rates
-    //TODO Double Pluse
-    //TODO try Chartreuse
-    //Particles sin wave, sub-sin wave?
-    //Don't dim 100%
-    //Lum ramp up also sin wave?
-    //Wave function? Fourier series 
-
-    //random LEDs
-    r = random(min, max);           
-    if ((i%10)==0){
-      
-      leds[r]=CHSV(96, 255, 255);      
-      leds[r2]=CHSV(96, 255, 255);      
-      r2=r;
-    }
-    delay(50);
-    FastLED.show();
-    fadeAll(210);
-    i++;
-  }
   fadeToBlack();
 
   //gradient
@@ -314,9 +323,23 @@ void loop() {
 
 
 
+}////////////////////////////end loop////////////////////////////
+
+
+int wave(int i, int lo, int hi, int amp, int offset)
+{
+  float deg = ((i*amp)+270+offset)%360;  //0-359
+  float rad = deg * PI / 180;     //convert to radians + 720 so i=0 => sin(rad)=0
+  int dif = hi-lo;                //differnce to get range
+  // sin(rad) will bounce between -1 and 1
+  // multiply by diff/2 shoud bouce between -(diff/2) and (diff/2)
+  // add (diff/2) should bounce between 0 and diff
+
+  int sinI = int((dif/2) + (sin(rad)*(dif/2)) );  
+  // shift range back up
+  sinI+=lo;
+  return sinI;
 }
-
-
 
 //maximize brightness of random pixles that are not black
 void sparkle()
@@ -380,6 +403,23 @@ void fadeToBlack()
       //leds[i] = leds[i].subtractFromRGB(16);
       leds[i] = leds[i].nscale8(225);
     }
+    delay(18);
+    FastLED.show();
+  }
+}
+
+//fade everone to black
+void sparkleToBlack()
+  {
+  //fade everything to 0 before looping
+  for (int i = 2; i < NUM_LEDS; i++) {
+    //fade everyone
+    for (int i = 0; i < NUM_LEDS; i++) {
+      //leds[i] = leds[i].subtractFromRGB(16);
+      leds[i] = leds[i].nscale8(225);
+      
+    }
+    sparkle();
     delay(18);
     FastLED.show();
   }
