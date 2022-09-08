@@ -1,7 +1,19 @@
 #include <FastLED.h>
 
+//TODO:
+//topper 100mm sphere 4each level, each level rotated 45deg
+//tube cross section: .82mm .85 withslot .44 slot width 
+//solder leads to strips
+//cut tubes in 1/4's
+//pin for main tube / pin holes
+//glue in topper tubes
+//print caps
+//wire in 12v board power supply: power batt->20to12v->12to5v
+//putty for switch hole
+//paint power box black / stain grey? x2? use rest of stain?
+
 #define LED_PIN     7
-#define NUM_LEDS    70//87
+#define NUM_LEDS    80 //64+16
 #define NUM_FIREFLIES    2
 
 CRGB leds[NUM_LEDS];
