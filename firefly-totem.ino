@@ -2,7 +2,7 @@
 
 //TODO:
 //topper 100mm sphere 4each level, each level rotated 45deg
-//tube cross section: .82mm .85 withslot .44 slot width 
+//tube cross section: .82in .85in withslot .44in slot width 
 //solder leads to strips
 //cut tubes in 1/4's
 //pin for main tube / pin holes
