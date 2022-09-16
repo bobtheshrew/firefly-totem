@@ -58,7 +58,7 @@ void setup() {
   leds[NUM_LEDS-1] = CRGB::White;
   FastLED.show();
   delay(100);
-  
+
   Serial.print("Setup complete.");
   Serial.println();
 }
@@ -66,6 +66,22 @@ void setup() {
 void loop() {
   //TODO rewite each routine as a function to return a frame? or accept a time to run?
   //TODO: Star field
+
+ //Test ping pong
+  doneMillis = millis() + 150000;
+  while (doneMillis > millis())
+  {
+      static int i = 0;
+      float deg = (i+90);
+      float rad = deg * PI / 180;
+      int sinI = int(((NUM_LEDS-1)/2) + (sin(rad)*((NUM_LEDS-1)/2)) );
+      i++;
+      leds[sinI]=CRGB(255, 0, 0); //CHSV(i%255, 255 , 255);          
+      delay(100);
+      FastLED.show();
+      fadeAll(128);  
+      }
+  fadeToBlack();
 
 //red streaks
   doneMillis = millis() + 150000;
@@ -131,6 +147,22 @@ void loop() {
       fadeAFrame();
     }
     sparkleToBlack();
+  }
+  fadeToBlack();
+
+  //red streaks
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    for (int i = 0; i < NUM_LEDS; i++) 
+    {
+      //iluminate the star
+      leds[i] = CRGB(255, 0, 0);          
+      delay(18);
+      FastLED.show();
+      fadeAFrame();
+      }
+      fadeToBlack();
   }
   fadeToBlack();
 
@@ -348,7 +380,7 @@ void loop() {
 
 int wave(int i, int lo, int hi, int amp, int offset)
 {
-  float deg = ((i*amp)+270+offset)%360;  //0-359
+  float deg = ((i*amp)+270+offset);  //0-359
   float rad = deg * PI / 180;     //convert to radians + 720 so i=0 => sin(rad)=0
   int dif = hi-lo;                //differnce to get range
   // sin(rad) will bounce between -1 and 1
