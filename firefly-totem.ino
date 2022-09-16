@@ -13,7 +13,9 @@
 //paint power box black / stain grey? x2? use rest of stain?
 
 #define LED_PIN     7
-#define NUM_LEDS    80 //64+16
+#define NUM_COLUMN_LEDS  64
+#define NUM_STAR_LEDS    16
+#define NUM_LEDS         16// 80 //64+16
 #define NUM_FIREFLIES    2
 
 CRGB leds[NUM_LEDS];
@@ -36,24 +38,27 @@ struct firefly{
 firefly fireflies[NUM_FIREFLIES];
 
 void setup() {
+  //2 second delay to ensure strip is powered up before initial launch
+  delay(2000);  
   Serial.begin(9600);
   Serial.print("Starting setup...");
   Serial.println();
 
+  // lights Initialization
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
-  //Initialization lights 
   leds[0] = CRGB(255, 0, 0);
   FastLED.show();
-  delay(50);  
+  delay(100);  
   leds[1] = CRGB(0, 255, 0);
   FastLED.show();
-  delay(50);
+  delay(100);
   leds[2] = CRGB(0, 0, 255);
   FastLED.show();
-  delay(50);
-  leds[69] = CRGB::White;
+  delay(100);
+  leds[NUM_LEDS-1] = CRGB::White;
   FastLED.show();
-  delay(50);
+  delay(100);
+  
   Serial.print("Setup complete.");
   Serial.println();
 }
@@ -61,6 +66,24 @@ void setup() {
 void loop() {
   //TODO rewite each routine as a function to return a frame? or accept a time to run?
   //TODO: Star field
+
+//red streaks
+  doneMillis = millis() + 150000;
+  while (doneMillis > millis())
+  {
+    for (int i = 0; i < NUM_LEDS; i++) 
+    {
+      //iluminate the star
+      leds[i] = CRGB(255, 0, 0);          
+      delay(18);
+      FastLED.show();
+      fadeAFrame();
+      }
+      fadeToBlack();
+  }
+  fadeToBlack();
+
+
 
   //Fireflies
   doneMillis = millis() + 30000;
@@ -111,22 +134,7 @@ void loop() {
   }
   fadeToBlack();
 
-  //red streaks
-  doneMillis = millis() + 15000;
-  while (doneMillis > millis())
-  {
-    for (int i = 0; i < NUM_LEDS; i++) 
-    {
-      //iluminate the star
-      leds[i] = CRGB(255, 0, 0);          
-      delay(18);
-      FastLED.show();
-      fadeAFrame();
-      }
-      fadeToBlack();
-  }
-  fadeToBlack();
-
+  
   //rainbow crackle
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
