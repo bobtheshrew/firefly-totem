@@ -15,7 +15,7 @@
 #define LED_PIN     7
 #define NUM_COLUMN_LEDS  64
 #define NUM_STAR_LEDS    16
-#define NUM_LEDS         16// 80 //64+16
+#define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    2
 
 CRGB leds[NUM_LEDS];
@@ -67,42 +67,10 @@ void loop() {
   //TODO rewite each routine as a function to return a frame? or accept a time to run?
   //TODO: Star field
 
- //Test ping pong
-  doneMillis = millis() + 150000;
-  while (doneMillis > millis())
-  {
-      static int i = 0;
-      float deg = (i+90);
-      float rad = deg * PI / 180;
-      int sinI = int(((NUM_LEDS-1)/2) + (sin(rad)*((NUM_LEDS-1)/2)) );
-      i++;
-      leds[sinI]=CRGB(255, 0, 0); //CHSV(i%255, 255 , 255);          
-      delay(100);
-      FastLED.show();
-      fadeAll(128);  
-      }
-  fadeToBlack();
-
-//red streaks
-  doneMillis = millis() + 150000;
-  while (doneMillis > millis())
-  {
-    for (int i = 0; i < NUM_LEDS; i++) 
-    {
-      //iluminate the star
-      leds[i] = CRGB(255, 0, 0);          
-      delay(18);
-      FastLED.show();
-      fadeAFrame();
-      }
-      fadeToBlack();
-  }
-  fadeToBlack();
-
-
-
-  //Fireflies
-  doneMillis = millis() + 30000;
+//---------
+//Fireflies
+//---------
+  doneMillis = millis() + (15000*2);
   while (doneMillis > millis())
   {
     static CRGB fireflyColor = chartreuse;
@@ -119,18 +87,18 @@ void loop() {
 
     for (int f = 0; f<3; f++){
       fireflyColor = chartreuse;
-      location = wave(i,0,NUM_LEDS,(f+1),(f*90));
       brightness = wave(i,0,255,10,0);
       leds[location] =  fireflyColor.nscale8(brightness);
     }
     delay(50);
     FastLED.show();
-    fadeAll(100);
+    fadeAll(0);
     i++;
     Serial.print(1);
     Serial.println();
   }
   fadeToBlack();
+
 
   //yellow sparkle
   doneMillis = millis() + 15000;
@@ -184,7 +152,42 @@ void loop() {
   }
   fadeToBlack();
 
-  //Reverse Chasers
+ //Rainbow Chasers
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    static int i=0;
+    fadeAFrameFast();
+    for (int j = 0; j < 8; j++){
+      leds[(i+(11*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
+    }
+    //sparkle();
+    delay(36);
+    FastLED.show();
+    i++;
+  }
+  fadeToBlack();
+
+
+
+//white ping pong
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+      static int i = 0;
+      float deg = (i+90);
+      float rad = deg * PI / 180;
+      int sinI = int(((NUM_LEDS-1)/2) + (sin(rad)*((NUM_LEDS-1)/2)) );
+      i++;
+      leds[sinI]=CRGB(255,255,255); //CHSV(i%255, 255 , 255);          
+      delay(5);
+      FastLED.show();
+      fadeAll(128);  
+      }
+  fadeToBlack();
+
+
+  //Reverse Rainbow Chasers
   //for (int i = (NUM_LEDS*5); i > 0 ; i--)
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
@@ -217,7 +220,11 @@ void loop() {
     }
   fadeToBlack();
 
-  //gradient
+
+
+  
+
+  //Rotating Gradient
   //0 is a color
   //NUM_LEDS-1 is a color
   //Other leds in between
@@ -341,22 +348,7 @@ void loop() {
   }
   fadeToBlack();
 
-  //Rainbow Chasers
-  doneMillis = millis() + 15000;
-  while (doneMillis > millis())
-  {
-    static int i=0;
-    fadeAFrameFast();
-    for (int j = 0; j < 8; j++){
-      leds[(i+(11*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
-    }
-    //sparkle();
-    delay(36);
-    FastLED.show();
-    i++;
-  }
-  fadeToBlack();
-
+ 
   //Blue and Violet Chasers
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
@@ -390,6 +382,9 @@ int wave(int i, int lo, int hi, int amp, int offset)
   int sinI = int((dif/2) + (sin(rad)*(dif/2)) );  
   // shift range back up
   sinI+=lo;
+  //safety rails
+  sinI = min(sinI,hi);
+  sinI = max(sinI,lo);
   return sinI;
 }
 
