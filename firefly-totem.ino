@@ -61,6 +61,7 @@ void setup() {
 
   Serial.print("Setup complete.");
   Serial.println();
+  fadeToBlack();
 }
 
 void loop() {
@@ -85,12 +86,27 @@ void loop() {
     //Lum ramp up also sin wave?
     //Wave function? Fourier series 
 
-    for (int f = 0; f<3; f++){
+/*
+    //for (int f = 0; f<3; f++){
+    int f=1;
       fireflyColor = chartreuse;
-      brightness = wave(i,0,255,10,0);
+      location = wave(i,0,NUM_LEDS-1,0.4,(f*90));
+      brightness = wave(i,0,255,10,(f*90));
       leds[location] =  fireflyColor.nscale8(brightness);
-    }
-    delay(50);
+    //}  // */
+
+    //cycle a flash for a pixel
+    r = random(min, max); 
+    for (int j = 0; j < 360; j++) 
+    {
+      fireflyColor = chartreuse;
+      brightness = wave(j,0,255,1,0);
+      leds[r] =  fireflyColor.nscale8(brightness);   
+      delay(5);
+      FastLED.show();
+      }
+    
+    delay(500);
     FastLED.show();
     fadeAll(0);
     i++;
@@ -370,7 +386,7 @@ void loop() {
 }////////////////////////////end loop////////////////////////////
 
 
-int wave(int i, int lo, int hi, int amp, int offset)
+int wave(int i, int lo, int hi, float amp, int offset)
 {
   float deg = ((i*amp)+270+offset);  //0-359
   float rad = deg * PI / 180;     //convert to radians + 720 so i=0 => sin(rad)=0
