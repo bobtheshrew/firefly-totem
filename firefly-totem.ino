@@ -16,7 +16,7 @@
 #define NUM_COLUMN_LEDS  64
 #define NUM_STAR_LEDS    16
 #define NUM_LEDS         80 //64+16
-#define NUM_FIREFLIES    2
+#define NUM_FIREFLIES    4
 
 CRGB leds[NUM_LEDS];
 CRGB black = CRGB::Black;
@@ -25,7 +25,7 @@ CRGB chartreuse = CRGB::Chartreuse;
 
 int min = 0;
 int max = NUM_LEDS-1;
-int r = 0;
+int r[NUM_FIREFLIES];
 int r2 = 0;
 static uint8_t hue = 0;
 unsigned long doneMillis = 0;
@@ -38,9 +38,15 @@ struct firefly{
 firefly fireflies[NUM_FIREFLIES];
 
 void setup() {
-  //2 second delay to ensure strip is powered up before initial launch
-  delay(2000);  
+  //1 second delay to ensure strip is powered up before initial launch
+  delay(1000);  
   Serial.begin(9600);
+  
+  // if analog input pin 0 is unconnected, random analog
+  // noise will cause the call to randomSeed() to generate
+  // different seed numbers each time the sketch runs.
+  // randomSeed() will then shuffle the random function.
+  randomSeed(analogRead(0));
   Serial.print("Starting setup...");
   Serial.println();
 
@@ -65,12 +71,73 @@ void setup() {
 }
 
 void loop() {
-  //TODO rewite each routine as a function to return a frame? or accept a time to run?
-  //TODO: Star field
+   //TODO rewite each routine as a function to return a frame? or accept a time to run?
+   //TODO: Star field
+   tvStatic();
+   fireFlies();
+   
+   int mode = random(0, max); //min -> (max-1) 
 
-//---------
-//Fireflies
-//---------
+   switch (mode) {
+   case 1:
+         fireFlies();
+         break;
+   case 2:
+         yellowSparkle();
+         break;
+   case 3:
+         blueStreaks();
+         break;
+   case 4:
+         rainbowCrackle();                
+         break;
+   case 5:
+         rainbowChasers();
+         break;
+   case 6:
+         pingPongWhite();
+         break;
+   case 7:
+         reverseRainbowChasers();
+         break;
+   case 8:
+         pingPongRainbow();
+         break;
+   case 9:
+         rotatingGradient();
+         break;
+   case 10:
+         longRainbowPulses();
+         break;
+   case 11:
+         redYellowChasers();
+         break;
+   case 12:
+         justCrackles();
+         break;
+   case 13:
+         blueAndVioletChasers();
+         break;
+   case 14:
+         tvStatic();
+         break;
+   default:
+         // statements
+         break;
+   }//end switch
+}//end loop
+   
+///////////////
+// Fireflies //
+///////////////
+void fireFlies()
+{
+   //init firefly locaitons
+   for (int j = 0; j < 4; j++) 
+   {
+     r[j] = random(min, max); 
+   }
+      
   doneMillis = millis() + (15000*2);
   while (doneMillis > millis())
   {
@@ -95,16 +162,26 @@ void loop() {
       leds[location] =  fireflyColor.nscale8(brightness);
     //}  // */
 
-    //cycle a flash for a pixel
-    r = random(min, max); 
-    for (int j = 0; j < 360; j++) 
+    //update each firefly
+    for (int j = 0; j < 4; j++) 
     {
+      //adjust color
       fireflyColor = chartreuse;
-      brightness = wave(j,0,255,1,0);
-      leds[r] =  fireflyColor.nscale8(brightness);   
+      brightness = wave(i,0,255,1,j*90);
+       
+      //TODO if (brightness%10) add or subtract location? within range
+             
+      leds[r[j]] =  fireflyColor.nscale8(brightness);   
       delay(5);
       FastLED.show();
+
+       //jump to next location
+       //TODO: 2 cycles?
+      if (brightness = 0)
+      {
+         r[j] = random(min, max); 
       }
+     }//end for
     
     delay(500);
     FastLED.show();
@@ -114,9 +191,13 @@ void loop() {
     Serial.println();
   }
   fadeToBlack();
+}
 
-
-  //yellow sparkle
+  ////////////////////  
+  // yellowSparkle //
+  ////////////////////  
+   
+void yellowSparkle(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -133,15 +214,17 @@ void loop() {
     sparkleToBlack();
   }
   fadeToBlack();
+}
 
-  //red streaks
+//blue streaks
+void blueStreaks{
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
     for (int i = 0; i < NUM_LEDS; i++) 
     {
       //iluminate the star
-      leds[i] = CRGB(255, 0, 0);          
+      leds[i] = CRGB(0, 0, 255);          
       delay(18);
       FastLED.show();
       fadeAFrame();
@@ -149,9 +232,10 @@ void loop() {
       fadeToBlack();
   }
   fadeToBlack();
-
+}
   
   //rainbow crackle
+void rainbowCrackle(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -167,8 +251,10 @@ void loop() {
     sparkleToBlack();
   }
   fadeToBlack();
+}
 
  //Rainbow Chasers
+void rainbowChasers(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -183,10 +269,11 @@ void loop() {
     i++;
   }
   fadeToBlack();
-
+}
 
 
 //white ping pong
+void pingPongWhite(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -201,10 +288,10 @@ void loop() {
       fadeAll(128);  
       }
   fadeToBlack();
-
+}
 
   //Reverse Rainbow Chasers
-  //for (int i = (NUM_LEDS*5); i > 0 ; i--)
+void reverseRainbowChasers(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -219,8 +306,10 @@ void loop() {
     FastLED.show();
   }
   fadeToBlack();
+}
 
   //Rainbow ping pong
+void pingPongRainbow(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -235,17 +324,14 @@ void loop() {
       fadeAll(240);  
     }
   fadeToBlack();
-
-
-
-  
+}
 
   //Rotating Gradient
   //0 is a color
   //NUM_LEDS-1 is a color
   //Other leds in between
   //is each channel 0's color + ((i/NUM_LEDS)*(difference))
-
+void rotatingGradient(){
   leds[0] = CRGB(255,0,0); 
   leds[NUM_LEDS-1] = CRGB(0,0,255); 
   
@@ -297,7 +383,7 @@ void loop() {
     }
   FastLED.show();
   fadeToBlack();
-
+}
 
  /* //teal bounce
   for (int i = 0; i < 2; i++)
@@ -318,6 +404,7 @@ void loop() {
   fadeToBlack();
   
   //Long Rainbow Pulses
+void longRainbowPulses(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -333,9 +420,10 @@ void loop() {
       }
   }
   fadeToBlack();
-
+}
   
   //red yellow Chasers
+void redYellowChasers(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -345,13 +433,15 @@ void loop() {
       leds[(i+(11*j))%NUM_LEDS]=CHSV(50*(j%2), 255, 255);
     }
     //sparkle();
-    delay(18);
+    delay(25);
     FastLED.show();
     i++;
   }
   fadeToBlack();
-    
+}
+
   //Just crackles
+void justCrackles(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -363,9 +453,10 @@ void loop() {
     FastLED.show();
   }
   fadeToBlack();
-
+}
  
   //Blue and Violet Chasers
+void blueAndVioletChasers(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -380,15 +471,29 @@ void loop() {
     i++;
   }
   fadeToBlack();
+}
 
+  //TV Static
+void tvStatic(){
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    for (int i = 1; i < (NUM_LEDS-1); i++)
+    { 
+       leds[i]=CHSV(0, 0, random(0,256));
+    }
+     FastLED.show();
+  }
+  fadeToBlack();
+}
 
-
-}////////////////////////////end loop////////////////////////////
-
-
+//////////
+// WAVE //
+//////////
+//i(degrees 0-359, floor, max, amp <1 slows >1 speeds, offset 
 int wave(int i, int lo, int hi, float amp, int offset)
 {
-  float deg = ((i*amp)+270+offset);  //0-359
+  float deg = ((i*amp)+270+offset);
   float rad = deg * PI / 180;     //convert to radians + 720 so i=0 => sin(rad)=0
   int dif = hi-lo;                //differnce to get range
   // sin(rad) will bounce between -1 and 1
@@ -418,7 +523,7 @@ void sparkle()
 //random pixles that are not black max to white
 void crackle()
 {
-  //random sparkles
+  //random white crackles
   r = random(min, max);            
   if(leds[r].getAverageLight()!=0)
   {
@@ -426,7 +531,7 @@ void crackle()
   }
 }
 
-//fade everyone 1 shade down
+//fade everyone 1/2 way down
 void fadeAFrameFast()
 {
   for (int i = 0; i < NUM_LEDS; i++) {
