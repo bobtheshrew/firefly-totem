@@ -73,10 +73,13 @@ void setup() {
 void loop() {
    //TODO rewite each routine as a function to return a frame? or accept a time to run?
    //TODO: Star field
-   tvStatic();
-   fireFlies();
+   //fireFlies();
    
-   int mode = random(0, max); //min -> (max-1) 
+   //reverseRainbowChasers();
+   //tvStatic();
+   //starfield();
+   
+   int mode = random(1, 16); //min -> (max-1) 
 
    switch (mode) {
    case 1:
@@ -121,12 +124,47 @@ void loop() {
    case 14:
          tvStatic();
          break;
+   case 15:
+         starfield();
+         break;
    default:
          // statements
          break;
    }//end switch
 }//end loop
-   
+
+//starfield
+void starfield(){
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    static int i=0;   
+    //NUM_COLUMN_LEDS  // 64
+    //NUM_STAR_LEDS    // 16
+
+//TODO
+//for (int j = 0; j < 8; j++){
+//}
+    int star = max(min(NUM_COLUMN_LEDS + (i%NUM_STAR_LEDS),NUM_LEDS-1),0);
+    int column = max(min(NUM_COLUMN_LEDS - (i%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
+
+    //super readable
+    int star2 = max(min(NUM_COLUMN_LEDS + ((i+(NUM_STAR_LEDS/2))%NUM_STAR_LEDS),NUM_LEDS-1),0);  
+    int column2 = max(min(NUM_COLUMN_LEDS - ((i+(NUM_COLUMN_LEDS/2))%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
+
+    leds[star]=CHSV(0, 0, 255);
+    leds[column]=CHSV(0, 0, 255);
+    leds[star2]=CHSV(0, 0, 255);
+    leds[column2]=CHSV(0, 0, 255);
+    
+    fadeAFrameFast();
+    delay(36);
+    FastLED.show();
+    i++;
+  }
+  fadeToBlack();
+}
+
 ///////////////
 // Fireflies //
 ///////////////
@@ -153,15 +191,6 @@ void fireFlies()
     //Lum ramp up also sin wave?
     //Wave function? Fourier series 
 
-/*
-    //for (int f = 0; f<3; f++){
-    int f=1;
-      fireflyColor = chartreuse;
-      location = wave(i,0,NUM_LEDS-1,0.4,(f*90));
-      brightness = wave(i,0,255,10,(f*90));
-      leds[location] =  fireflyColor.nscale8(brightness);
-    //}  // */
-
     //update each firefly
     for (int j = 0; j < 4; j++) 
     {
@@ -172,26 +201,21 @@ void fireFlies()
       //TODO if (brightness%10) add or subtract location? within range
              
       leds[r[j]] =  fireflyColor.nscale8(brightness);   
-      delay(5);
-      FastLED.show();
-
-       //jump to next location
-       //TODO: 2 cycles?
-      if (brightness = 0)
+      
+      //jump to next location
+      //TODO: 2 cycles?
+      if (brightness < 1)
       {
          r[j] = random(min, max); 
       }
      }//end for
     
-    delay(500);
+    delay(1);
     FastLED.show();
-    fadeAll(0);
     i++;
-    Serial.print(1);
-    Serial.println();
-  }
+  }// end while
   fadeToBlack();
-}
+}//end for
 
   ////////////////////  
   // yellowSparkle //
@@ -217,7 +241,7 @@ void yellowSparkle(){
 }
 
 //blue streaks
-void blueStreaks{
+void blueStreaks(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
@@ -299,7 +323,8 @@ void reverseRainbowChasers(){
     i++;
     fadeAFrameFast();
     for (int j = 0; j < 8; j++){
-      leds[(NUM_LEDS-1)-((i+(10*j))%NUM_LEDS)]=CHSV(32*j, 0, 255);
+      int location = max(min((NUM_LEDS-1)-((i+(10*j))%NUM_LEDS),NUM_LEDS-1),0);
+      leds[location]=CHSV(32*j, 255, 255);
     }
     //sparkle();
     delay(36);
@@ -400,8 +425,9 @@ void rotatingGradient(){
       }
       //sparkle();
   }
-*/
   fadeToBlack();
+*/
+  
   
   //Long Rainbow Pulses
 void longRainbowPulses(){
@@ -447,8 +473,8 @@ void justCrackles(){
   {
     fadeAFrame();
     //random sparkles
-    r = random(min, max);            
-    leds[r]=white;
+    r2 = random(min, max);            
+    leds[r2]=white;
     delay(36);
     FastLED.show();
   }
@@ -478,11 +504,28 @@ void tvStatic(){
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
   {
-    for (int i = 1; i < (NUM_LEDS-1); i++)
+    for (int i = 0; i < (NUM_LEDS-1); i=i+2)
     { 
-       leds[i]=CHSV(0, 0, random(0,256));
+      int red = random(0,256);
+      int green = random(0,256);
+      int blue = random(0,256);
+
+      switch (random(0,3)) {
+        case 0:
+          red=0;
+          break;
+        case 1:
+          green=0;
+          break;
+        case 2:
+          blue=0;
+          break;
+      }
+      
+      leds[i]=CRGB(red,green,blue);  //CHSV(random(0,256), 255, random(0,256));
     }
-     FastLED.show();
+    delay(30);
+    FastLED.show();
   }
   fadeToBlack();
 }
@@ -513,10 +556,10 @@ int wave(int i, int lo, int hi, float amp, int offset)
 void sparkle()
 {
   //random sparkles
-  r = random(min, max);            
-  if(leds[r].getAverageLight()!=0)
+  r2 = random(min, max);            
+  if(leds[r2].getAverageLight()!=0)
   {
-    leds[r].maximizeBrightness();
+    leds[r2].maximizeBrightness();
   }
 }
 
@@ -524,10 +567,10 @@ void sparkle()
 void crackle()
 {
   //random white crackles
-  r = random(min, max);            
-  if(leds[r].getAverageLight()!=0)
+  r2 = random(min, max);            
+  if(leds[r2].getAverageLight()!=0)
   {
-    leds[r]=white;
+    leds[r2]=white;
   }
 }
 
