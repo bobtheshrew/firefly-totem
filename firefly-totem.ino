@@ -17,6 +17,7 @@
 #define NUM_STAR_LEDS    16
 #define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    4
+#define NUM_MODES        15
 
 CRGB leds[NUM_LEDS];
 CRGB black = CRGB::Black;
@@ -26,6 +27,7 @@ CRGB chartreuse = CRGB::Chartreuse;
 int min = 0;
 int max = NUM_LEDS-1;
 int r[NUM_FIREFLIES];
+int modes[NUM_MODES];
 int r2 = 0;
 static uint8_t hue = 0;
 unsigned long doneMillis = 0;
@@ -41,34 +43,42 @@ void setup() {
   //1 second delay to ensure strip is powered up before initial launch
   delay(1000);  
   Serial.begin(9600);
+  Serial.print("Starting setup...");
+  Serial.println();
   
   // if analog input pin 0 is unconnected, random analog
   // noise will cause the call to randomSeed() to generate
   // different seed numbers each time the sketch runs.
   // randomSeed() will then shuffle the random function.
   randomSeed(analogRead(0));
-  Serial.print("Starting setup...");
-  Serial.println();
 
   // lights Initialization
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
-  leds[0] = CRGB(255, 0, 0);
+  leds[10] = CRGB(255, 0, 0);
   FastLED.show();
-  delay(100);  
-  leds[1] = CRGB(0, 255, 0);
+  delay(200);  
+  leds[20] = CRGB(0, 255, 0);
   FastLED.show();
-  delay(100);
-  leds[2] = CRGB(0, 0, 255);
+  delay(200);
+  leds[30] = CRGB(0, 0, 255);
   FastLED.show();
-  delay(100);
+  delay(200);
   leds[NUM_LEDS-1] = CRGB::White;
   FastLED.show();
-  delay(100);
+  delay(200);
 
-  Serial.print("Setup complete.");
-  Serial.println();
   fadeToBlack();
-}
+  
+   //shuffle the mode order
+   for (int i=0; i < NUM_MODES-1; i++) {
+      int n = random(0, NUM_MODES);  // Integer from 0 to NUM_MODES-1
+      int temp = modes[n];
+      modes[n] =  modes[i];
+      modes[i] = temp;
+   }
+  Serial.print("Setup complete.");
+  Serial.println();   
+}//end init
 
 void loop() {
    //TODO rewite each routine as a function to return a frame? or accept a time to run?
@@ -79,58 +89,62 @@ void loop() {
    //tvStatic();
    //starfield();
    
-   int mode = random(1, 16); //min -> (max-1) 
-
-   switch (mode) {
-   case 1:
-         fireFlies();
-         break;
-   case 2:
-         yellowSparkle();
-         break;
-   case 3:
-         blueStreaks();
-         break;
-   case 4:
-         rainbowCrackle();                
-         break;
-   case 5:
-         rainbowChasers();
-         break;
-   case 6:
-         pingPongWhite();
-         break;
-   case 7:
-         reverseRainbowChasers();
-         break;
-   case 8:
-         pingPongRainbow();
-         break;
-   case 9:
-         rotatingGradient();
-         break;
-   case 10:
-         longRainbowPulses();
-         break;
-   case 11:
-         redYellowChasers();
-         break;
-   case 12:
-         justCrackles();
-         break;
-   case 13:
-         blueAndVioletChasers();
-         break;
-   case 14:
-         tvStatic();
-         break;
-   case 15:
-         starfield();
-         break;
-   default:
-         // statements
-         break;
-   }//end switch
+   //int mode = random(0, 16); //min -> (max-1) 
+   for (int i=0; i < NUM_MODES-1; i++) {
+      switch (modes[i]) {
+      case 0:
+            fireFlies();
+            break;
+      case 1:
+            fireFlies();
+            break;
+      case 2:
+            yellowSparkle();
+            break;
+      case 3:
+            blueStreaks();
+            break;
+      case 4:
+            rainbowCrackle();                
+            break;
+      case 5:
+            rainbowChasers();
+            break;
+      case 6:
+            pingPongWhite();
+            break;
+      case 7:
+            reverseRainbowChasers();
+            break;
+      case 8:
+            pingPongRainbow();
+            break;
+      case 9:
+            rotatingGradient();
+            break;
+      case 10:
+            longRainbowPulses();
+            break;
+      case 11:
+            redYellowChasers();
+            break;
+      case 12:
+            justCrackles();
+            break;
+      case 13:
+            blueAndVioletChasers();
+            break;
+      case 14:
+            tvStatic();
+            break;
+      case 15:
+            starfield();
+            break;
+      default:
+            // statements
+            break;
+      }//end switch
+   }//end for
 }//end loop
 
 //starfield
