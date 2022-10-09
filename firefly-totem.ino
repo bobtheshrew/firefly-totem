@@ -299,7 +299,8 @@ void rainbowChasers(){
     static int i=0;
     fadeAFrameFast();
     for (int j = 0; j < 8; j++){
-      leds[(i+(11*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
+       //
+      leds[(i+(10*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
     }
     //sparkle();
     delay(36);
