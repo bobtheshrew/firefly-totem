@@ -67,7 +67,7 @@ void setup() {
   FastLED.show();
   delay(200);
   fadeToBlack();
-  
+
   //initialize modes
   for (int i=0; i < NUM_MODES-1; i++) {
     modes[i] = i;
@@ -85,7 +85,6 @@ void setup() {
 }//end init
 
 void loop() {
-
    //DEBUG - Direct Calls
    //fireFlies();
    //reverseRainbowChasers();
@@ -139,6 +138,7 @@ void loop() {
       case 14:
             tvStatic();
             break;
+
       default:
             // statements
             break;
@@ -346,24 +346,6 @@ void pingPongRainbow(){
   fadeToBlack();
 }
 
-  //Reverse Rainbow Chasers
-void reverseRainbowChasers(){
-  doneMillis = millis() + 15000;
-  while (doneMillis > millis())
-  {
-    static int i = 0;
-    i++;
-    fadeAFrameFast();
-    for (int j = 0; j < 8; j++){
-      int location = max(min((NUM_LEDS-1)-((i+(10*j))%NUM_LEDS),NUM_LEDS-1),0);
-      leds[location]=CHSV(32*j, 255, 255);
-    }
-    //sparkle();
-    delay(36);
-    FastLED.show();
-  }
-  fadeToBlack();
-}
   //Rotating Gradient
   //0 is a color
   //NUM_LEDS-1 is a color
