@@ -18,8 +18,10 @@
 #define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    4
 #define NUM_MODES        15
+#define MODE_SHOW_MILLIS      15000  //number of millis to show a mode
 
 CRGB leds[NUM_LEDS];
+
 CRGB black = CRGB::Black;
 CRGB white = CRGB::NavajoWhite;
 CRGB chartreuse = CRGB::Chartreuse;
@@ -30,14 +32,7 @@ int r[NUM_FIREFLIES];
 int modes[NUM_MODES];
 int r2 = 0;
 static uint8_t hue = 0;
-unsigned long doneMillis = 0;
-
-struct firefly{
-   int location = 0;
-   CRGB color = CRGB::Chartreuse;
-};
-
-firefly fireflies[NUM_FIREFLIES];
+unsigned long doneMillis = 0; //var for mode end times
 
 void setup() {
   //1 second delay to ensure strip is powered up before initial launch
@@ -148,7 +143,7 @@ void loop() {
 
 //starfield
 void starfield(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     static int i=0;   
@@ -189,7 +184,7 @@ void fireFlies()
      r[j] = random(min, max); 
    }
       
-  doneMillis = millis() + (15000*2);
+  doneMillis = millis() + (MODE_SHOW_MILLIS*2);
   while (doneMillis > millis())
   {
     static CRGB fireflyColor = chartreuse;
@@ -211,7 +206,7 @@ void fireFlies()
       fireflyColor = chartreuse;
       brightness = wave(i,0,255,1,j*90);
        
-      //TODO if (brightness%10) add or subtract location? within range
+      //TODO: if (brightness%10) add or subtract location? within range
              
       leds[r[j]] =  fireflyColor.nscale8(brightness);   
       
@@ -235,7 +230,7 @@ void fireFlies()
   ////////////////////  
    
 void yellowSparkle(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     for (int i = 2; i < NUM_LEDS; i++) {
@@ -255,7 +250,7 @@ void yellowSparkle(){
 
 //blue streaks
 void blueStreaks(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     for (int i = 0; i < NUM_LEDS; i++) 
@@ -273,7 +268,7 @@ void blueStreaks(){
   
   //rainbow crackle
 void rainbowCrackle(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     for (int i = 1; i < NUM_LEDS; i++) {
@@ -292,7 +287,7 @@ void rainbowCrackle(){
 
  //Rainbow Chasers
 void rainbowChasers(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     static int i=0;
@@ -311,7 +306,7 @@ void rainbowChasers(){
 
 //white ping pong
 void pingPongWhite(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
       static int i = 0;
@@ -330,7 +325,7 @@ void pingPongWhite(){
 
   //Rainbow ping pong
 void pingPongRainbow(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
       static int i = 0;
@@ -426,7 +421,7 @@ void rotatingGradient(){
   
   //Long Rainbow Pulses
 void longRainbowPulses(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
       fadeAFrameFast();
@@ -445,7 +440,7 @@ void longRainbowPulses(){
   
   //red yellow Chasers
 void redYellowChasers(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     static int i = 0;
@@ -463,7 +458,7 @@ void redYellowChasers(){
 
   //Just crackles
 void justCrackles(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     fadeAFrame();
@@ -478,7 +473,7 @@ void justCrackles(){
  
   //Blue and Violet Chasers
 void blueAndVioletChasers(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     static int i=0;
@@ -496,7 +491,7 @@ void blueAndVioletChasers(){
 
   //TV Static
 void tvStatic(){
-  doneMillis = millis() + 15000;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     for (int i = 0; i < (NUM_LEDS-1); i=i+2)
