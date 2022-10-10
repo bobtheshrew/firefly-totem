@@ -66,34 +66,36 @@ void setup() {
   leds[NUM_LEDS-1] = CRGB::White;
   FastLED.show();
   delay(200);
-
   fadeToBlack();
   
-   //shuffle the mode order
-   for (int i=0; i < NUM_MODES-1; i++) {
-      int n = random(0, NUM_MODES);  // Integer from 0 to NUM_MODES-1
-      int temp = modes[n];
-      modes[n] =  modes[i];
-      modes[i] = temp;
-   }
+  //initialize modes
+  for (int i=0; i < NUM_MODES-1; i++) {
+    modes[i] = i;
+  }
+  
+  //shuffle the mode order
+  for (int i=0; i < NUM_MODES-1; i++) {
+    int n = random(0, NUM_MODES);  // Integer from 0 to NUM_MODES-1
+    int temp = modes[n];
+    modes[n] =  modes[i];
+    modes[i] = temp;
+  }
   Serial.print("Setup complete.");
   Serial.println();   
 }//end init
 
 void loop() {
-   //TODO rewite each routine as a function to return a frame? or accept a time to run?
-   //TODO: Star field
+
+   //DEBUG - Direct Calls
    //fireFlies();
-   
    //reverseRainbowChasers();
    //tvStatic();
    //starfield();
    
-   //int mode = random(0, 16); //min -> (max-1) 
    for (int i=0; i < NUM_MODES-1; i++) {
       switch (modes[i]) {
       case 0:
-            fireFlies();
+            starfield();
             break;
       case 1:
             fireFlies();
@@ -136,9 +138,6 @@ void loop() {
             break;
       case 14:
             tvStatic();
-            break;
-      case 15:
-            starfield();
             break;
       default:
             // statements
@@ -299,7 +298,7 @@ void rainbowChasers(){
     static int i=0;
     fadeAFrameFast();
     for (int j = 0; j < 8; j++){
-      leds[(i+(11*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
+      leds[(i+(10*j))%NUM_LEDS]=CHSV(32*j, 255, 255);
     }
     //sparkle();
     delay(36);
@@ -328,24 +327,6 @@ void pingPongWhite(){
   fadeToBlack();
 }
 
-  //Reverse Rainbow Chasers
-void reverseRainbowChasers(){
-  doneMillis = millis() + 15000;
-  while (doneMillis > millis())
-  {
-    static int i = 0;
-    i++;
-    fadeAFrameFast();
-    for (int j = 0; j < 8; j++){
-      int location = max(min((NUM_LEDS-1)-((i+(10*j))%NUM_LEDS),NUM_LEDS-1),0);
-      leds[location]=CHSV(32*j, 255, 255);
-    }
-    //sparkle();
-    delay(36);
-    FastLED.show();
-  }
-  fadeToBlack();
-}
 
   //Rainbow ping pong
 void pingPongRainbow(){
@@ -365,6 +346,24 @@ void pingPongRainbow(){
   fadeToBlack();
 }
 
+  //Reverse Rainbow Chasers
+void reverseRainbowChasers(){
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    static int i = 0;
+    i++;
+    fadeAFrameFast();
+    for (int j = 0; j < 8; j++){
+      int location = max(min((NUM_LEDS-1)-((i+(10*j))%NUM_LEDS),NUM_LEDS-1),0);
+      leds[location]=CHSV(32*j, 255, 255);
+    }
+    //sparkle();
+    delay(36);
+    FastLED.show();
+  }
+  fadeToBlack();
+}
   //Rotating Gradient
   //0 is a color
   //NUM_LEDS-1 is a color
