@@ -23,7 +23,11 @@
 CRGB leds[NUM_LEDS];
 
 CRGB black = CRGB::Black;
+CRGB white = CRGB::White;
 CRGB white = CRGB::NavajoWhite;
+CRGB orange = CRGB::Orange;
+CRGB indigo = CRGB::Indigo;
+
 CRGB chartreuse = CRGB::Chartreuse;
 
 int min = 0;
@@ -133,6 +137,9 @@ void loop() {
       case 14:
             tvStatic();
             break;
+      case 15:
+            halloween();
+            break;
 
       default:
             // statements
@@ -140,6 +147,30 @@ void loop() {
       }//end switch
    }//end for
 }//end loop
+
+//halloween orange column, purple stars
+void halloween(){  
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    //NUM_COLUMN_LEDS  // 64
+    //NUM_STAR_LEDS    // 16
+    for (int i = 1; i < NUM_LEDS; i++) {
+          //iluminate the star
+          if (i<NUM_COLUMN_LEDS){
+            leds[i] = orange;
+          }else{
+            leds[i] = indigo;
+            crackle();
+          }
+          delay(18);
+          FastLED.show();
+          fadeAFrame();
+        }//end for
+        sparkleToBlack();
+      }//end while
+      fadeToBlack();}
+}//end halloween
 
 //starfield
 void starfield(){
