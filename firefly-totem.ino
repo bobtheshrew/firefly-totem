@@ -23,11 +23,9 @@
 CRGB leds[NUM_LEDS];
 
 CRGB black = CRGB::Black;
-CRGB white = CRGB::White;
 CRGB white = CRGB::NavajoWhite;
-CRGB orange = CRGB::Orange;
-CRGB indigo = CRGB::Indigo;
-
+CRGB orange = CRGB::OrangeRed;
+CRGB purples[] = {CRGB::Indigo,CRGB::Violet,CRGB::Purple};
 CRGB chartreuse = CRGB::Chartreuse;
 
 int min = 0;
@@ -90,7 +88,9 @@ void loop() {
    //tvStatic();
    //starfield();
    halloween();
-  
+   tvStatic();
+   
+   
    for (int i=0; i < NUM_MODES-1; i++) {
       switch (modes[i]) {
       case 0:
@@ -141,7 +141,6 @@ void loop() {
       case 15:
             halloween();
             break;
-
       default:
             // statements
             break;
@@ -161,16 +160,16 @@ void halloween(){
           if (i<NUM_COLUMN_LEDS){
             leds[i] = orange;
           }else{
-            leds[i] = indigo;
-            crackle();
+            leds[i] = purples[i%3];
+            sparkle();
           }
-          delay(18);
+          delay(36);
           FastLED.show();
           fadeAFrame();
         }//end for
         sparkleToBlack();
       }//end while
-      fadeToBlack();}
+      fadeToBlack();
 }//end halloween
 
 //starfield
@@ -186,19 +185,23 @@ void starfield(){
 //for (int j = 0; j < 8; j++){
 //}
     int star = max(min(NUM_COLUMN_LEDS + (i%NUM_STAR_LEDS),NUM_LEDS-1),0);
-    int column = max(min(NUM_COLUMN_LEDS - (i%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
-
-    //super readable
     int star2 = max(min(NUM_COLUMN_LEDS + ((i+(NUM_STAR_LEDS/2))%NUM_STAR_LEDS),NUM_LEDS-1),0);  
-    int column2 = max(min(NUM_COLUMN_LEDS - ((i+(NUM_COLUMN_LEDS/2))%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
+
+    int column = max(min(NUM_COLUMN_LEDS - (i%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
+    int column2 = max(min(NUM_COLUMN_LEDS - ((i+(NUM_COLUMN_LEDS*1/2))%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
+    int column3 = max(min(NUM_COLUMN_LEDS - ((i+(NUM_COLUMN_LEDS*3/4))%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
+    int column4 = max(min(NUM_COLUMN_LEDS - ((i+(NUM_COLUMN_LEDS*1/4))%NUM_COLUMN_LEDS),NUM_LEDS-1),0);
 
     leds[star]=CHSV(0, 0, 255);
-    leds[column]=CHSV(0, 0, 255);
     leds[star2]=CHSV(0, 0, 255);
+    
+    leds[column]=CHSV(0, 0, 255);
     leds[column2]=CHSV(0, 0, 255);
+    leds[column3]=CHSV(0, 0, 255);
+    leds[column4]=CHSV(0, 0, 255);
     
     fadeAFrameFast();
-    delay(36);
+    delay(50);
     FastLED.show();
     i++;
   }
@@ -257,9 +260,9 @@ void fireFlies()
   fadeToBlack();
 }//end for
 
-  ////////////////////  
+  ///////////////////  
   // yellowSparkle //
-  ////////////////////  
+  ///////////////////  
    
 void yellowSparkle(){
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -280,7 +283,9 @@ void yellowSparkle(){
   fadeToBlack();
 }
 
-//blue streaks
+////////////////  
+//blue streaks//
+////////////////  
 void blueStreaks(){
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -297,8 +302,9 @@ void blueStreaks(){
   }
   fadeToBlack();
 }
-  
-  //rainbow crackle
+///////////////////  
+//rainbow crackle//
+///////////////////  
 void rainbowCrackle(){
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -308,7 +314,7 @@ void rainbowCrackle(){
       hue = hue + 16;
       leds[i] = CHSV(hue, 255, 255);
       crackle();
-      delay(18);
+      delay(20);
       FastLED.show();
       fadeAFrame();
     }
@@ -335,8 +341,9 @@ void rainbowChasers(){
   fadeToBlack();
 }
 
-
-//white ping pong
+///////////////////  
+//white ping pong//
+///////////////////  
 void pingPongWhite(){
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -354,16 +361,17 @@ void pingPongWhite(){
   fadeToBlack();
 }
 
-
-  //Rainbow ping pong
+/////////////////////
+//Rainbow ping pong//
+/////////////////////
 void pingPongRainbow(){
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
       static int i = 0;
-      float deg = (i+270)%360;
+      float deg = (i+270);
       float rad = deg * PI / 180;
-      int sinI = int((NUM_LEDS/2) + (sin(rad)*(NUM_LEDS/2)) );
+      int sinI = int(((NUM_LEDS-1)/2) + (sin(rad)*((NUM_LEDS-1)/2)) );
       i++;
       leds[sinI]=CHSV(i%255, 255 , 255);          
       delay(5);
@@ -373,7 +381,30 @@ void pingPongRainbow(){
   fadeToBlack();
 }
 
-  //Rotating Gradient
+///////////////////////////
+//Reverse Rainbow Chasers//
+///////////////////////////
+void reverseRainbowChasers(){
+  doneMillis = millis() + 15000;
+  while (doneMillis > millis())
+  {
+    static int i = 0;
+    i++;
+    fadeAFrameFast();
+    for (int j = 0; j < 8; j++){
+      int location = max(min((NUM_LEDS-1)-((i+(10*j))%NUM_LEDS),NUM_LEDS-1),0);
+      leds[location]=CHSV(32*j, 255, 255);
+    }
+    //sparkle();
+    delay(36);
+    FastLED.show();
+  }
+  fadeToBlack();
+}
+
+/////////////////////
+//Rotating Gradient//
+/////////////////////
   //0 is a color
   //NUM_LEDS-1 is a color
   //Other leds in between
@@ -523,14 +554,18 @@ void blueAndVioletChasers(){
 
   //TV Static
 void tvStatic(){
+  int red = 0;
+  int green = 0;
+  int blue = 0;
+
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
-    for (int i = 0; i < (NUM_LEDS-1); i=i+2)
+    for (int i = 1; i < (NUM_LEDS-1); i=i+2)
     { 
-      int red = random(0,256);
-      int green = random(0,256);
-      int blue = random(0,256);
+          red=random(0,128);
+          green=random(0,128);
+          blue=random(0,128);
 
       switch (random(0,3)) {
         case 0:
@@ -543,11 +578,18 @@ void tvStatic(){
           blue=0;
           break;
       }
-      
+
       leds[i]=CRGB(red,green,blue);  //CHSV(random(0,256), 255, random(0,256));
+
+//      red = leds[i].r;
+//      green = leds[i].g;
+//      blue = leds[i].b;
+      
+      FastLED.show();
+      //delay(10);
     }
-    delay(30);
-    FastLED.show();
+    //delay(100);
+    //FastLED.show();
   }
   fadeToBlack();
 }
