@@ -17,7 +17,7 @@
 #define NUM_STAR_LEDS    16
 #define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    4
-#define NUM_MODES        15
+#define NUM_MODES        16
 #define MODE_SHOW_MILLIS      15000  //number of millis to show a mode
 
 CRGB leds[NUM_LEDS];
@@ -89,7 +89,8 @@ void loop() {
    //reverseRainbowChasers();
    //tvStatic();
    //starfield();
-   
+   halloween();
+  
    for (int i=0; i < NUM_MODES-1; i++) {
       switch (modes[i]) {
       case 0:
