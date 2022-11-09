@@ -12,13 +12,13 @@
 //putty for switch hole
 //paint power box black / stain grey? x2? use rest of stain?
 
+#define NUM_MODES        18
 #define LED_PIN     7
 #define NUM_COLUMN_LEDS  64 //0-63
 #define NUM_STAR_LEDS    16 //64-79
 #define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    4
-#define NUM_MODES        17
-#define MODE_SHOW_MILLIS      20000  //number of millis to show a mode
+#define MODE_SHOW_MILLIS 20000  //number of millis to show a mode
 
 CRGB leds[NUM_LEDS];
 
@@ -39,11 +39,14 @@ int r2 = 0;
 static uint8_t hue = 0;
 unsigned long doneMillis = 0; //var for mode end times
 
-struct Particle{
+struct Particle {
   int idx;
-  CRGB color;
-}
-
+  int color;
+  bool moving;
+};
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                          SETUP                                                   //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
   //1 second delay to ensure strip is powered up before initial launch
   delay(1000);
@@ -91,13 +94,17 @@ void setup() {
   Serial.println();
 }//end init
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        LOOP                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
   //DEBUG - Direct Calls
   //blueAndVioletChasers();
   //daisy();
   //halloween();
-  falling_leaves();
-  
+  americanCrackles();
+  fallingLeaves();
+
   for (int i = 0; i < NUM_MODES; i++) {
     switch (modes[i]) {
       case 0:
@@ -151,6 +158,9 @@ void loop() {
       case 16:
         daisy();
         break;
+      case 17:
+        fallingLeaves();
+        break;
       default:
         // statements
         break;
@@ -160,39 +170,97 @@ void loop() {
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-////////////
-// leaves //
-////////////
-void falling_leaves() {
-  //leaves
-  Particle leaves[8];
-    leaves[0] = {65,CRGB(255, 255, 255)}; 
-    leaves[1] = {67,CRGB(255, 255, 255)}; 
-    leaves[2] = {69,CRGB(255, 255, 255)}; 
-    leaves[3] = {71,CRGB(255, 255, 255)}; 
-    leaves[4] = {73,CRGB(255, 255, 255)}; 
-    leaves[5] = {75,CRGB(255, 255, 255)}; 
-    leaves[6] = {77,CRGB(255, 255, 255)}; 
-    leaves[7] = {79,CRGB(255, 255, 255)}; 
-
+////////////////////
+// Three Crackles //
+////////////////////
+void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
+  int i = 0;
+  CRGB colors[]={color1,color2,color3};
   doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    fadeAFrame();
+    //random sparkles
+    r2 = random(0, NUM_LEDS);
+    leds[r2] = colors[i%3];
+    delay(36);
+    FastLED.show();
+    i++;
+  }
+  fadeToBlack();
+}
+
+///////////////////////
+// American Crackles //
+///////////////////////
+void americanCrackles(){
+  threeCrackles(CRGB::Red,CRGB::White,CRGB::Blue);
+}
+
+////////////////////
+// Falling Leaves //
+////////////////////
+void fallingLeaves() {
+  int i = 0;
+  //leaves
+  int NUM_LEAVES = 16;
+  Particle leaves[NUM_LEAVES];
+
+  // maple leaf progression
+  CRGB leafProgression[100];
+  fill_gradient (leafProgression, 100, CHSV(96,255,196), CHSV(0,255,128), CHSV(32,255,64), TGradientDirectionCode::SHORTEST_HUES);
+
+  //initialize leaves
+  for (int j = 0; j < NUM_LEAVES; j++) {
+    int r = random(0,100);
+    //everyother at the top of the tree
+    //leaves[j] = {65 + (j * 2), r, false};
+    //full top
+    leaves[j] = {64 + (j), r, false};
+  }
+
+  doneMillis = millis() + MODE_SHOW_MILLIS + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     //start black
     fill_solid (leds, NUM_LEDS, black);
-    
     //TODO fade in
-    
+
     //Fall
-    for (i=0; i<8 i++){
-        if (leaves[i].idx > 0) {
-          leaves[i].idx--;
-          leds[leaves[i].idx]=leaves[i].color;      
+    for (int f = 0; f < NUM_LEAVES; f++) {
+      //age a leaf, start falling if brown
+        if (leaves[f].color < 99) {
+          leaves[f].color++;
+        } else {
+          leaves[f].moving = true;
         }
+
+      //fall a bit if needed, every other
+      if (leaves[f].idx > 0 && leaves[f].moving  && (f%2==i%2)) {
+        leaves[f].idx--;
+      }
+
+      //reset leaf if at the bottom
+      if (leaves[f].idx == 0) {
+        //every other
+        //leaves[f] = {65 + (f * 2), 0, false};
+        //full top
+        leaves[f] = {64 + (f), 0, false};
+      }
+
+      //add to display
+      //skip over other leaves in the top of the tree
+        //if it's not (odd, more than 64, and moving) unless it's black
+        if ((!( (leaves[f].idx%2!=0) && (leaves[f].idx>64) && leaves[f].moving ))  || (leds[leaves[f].idx]==CRGB(0,0,0))){
+            leds[leaves[f].idx] = leafProgression[leaves[f].color];
+        }
+
+
     }
-    delay(5);
+    delay(90);
     FastLED.show();
-  }
+    i++;
+  }//end while
   fadeToBlack();
 }
 
@@ -680,7 +748,7 @@ void justCrackles() {
 // Blue and Violet Chasers //
 /////////////////////////////
 void blueAndVioletChasers() {
-  twoChasers (CRGB::Blue,CRGB::DarkViolet);
+  twoChasers (CRGB::Blue, CRGB::DarkViolet);
   return;
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
