@@ -13,8 +13,8 @@
 //paint power box black / stain grey? x2? use rest of stain?
 
 #define LED_PIN     7
-#define NUM_COLUMN_LEDS  64
-#define NUM_STAR_LEDS    16
+#define NUM_COLUMN_LEDS  64 //0-63
+#define NUM_STAR_LEDS    16 //64-79
 #define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    4
 #define NUM_MODES        17
@@ -38,6 +38,11 @@ int modes[NUM_MODES];
 int r2 = 0;
 static uint8_t hue = 0;
 unsigned long doneMillis = 0; //var for mode end times
+
+struct Particle{
+  int idx;
+  CRGB color;
+}
 
 void setup() {
   //1 second delay to ensure strip is powered up before initial launch
@@ -88,9 +93,10 @@ void setup() {
 
 void loop() {
   //DEBUG - Direct Calls
-  blueAndVioletChasers();
-  daisy();
-  halloween();
+  //blueAndVioletChasers();
+  //daisy();
+  //halloween();
+  falling_leaves();
   
   for (int i = 0; i < NUM_MODES; i++) {
     switch (modes[i]) {
@@ -151,7 +157,44 @@ void loop() {
     }//end switch
   }//end for
 }//end loop
+///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 
+////////////
+// leaves //
+////////////
+void falling_leaves() {
+  //leaves
+  Particle leaves[8];
+    leaves[0] = {65,CRGB(255, 255, 255)}; 
+    leaves[1] = {67,CRGB(255, 255, 255)}; 
+    leaves[2] = {69,CRGB(255, 255, 255)}; 
+    leaves[3] = {71,CRGB(255, 255, 255)}; 
+    leaves[4] = {73,CRGB(255, 255, 255)}; 
+    leaves[5] = {75,CRGB(255, 255, 255)}; 
+    leaves[6] = {77,CRGB(255, 255, 255)}; 
+    leaves[7] = {79,CRGB(255, 255, 255)}; 
+
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    //start black
+    fill_solid (leds, NUM_LEDS, black);
+    
+    //TODO fade in
+    
+    //Fall
+    for (i=0; i<8 i++){
+        if (leaves[i].idx > 0) {
+          leaves[i].idx--;
+          leds[leaves[i].idx]=leaves[i].color;      
+        }
+    }
+    delay(5);
+    FastLED.show();
+  }
+  fadeToBlack();
+}
 
 //////////////////
 // colorSparkle //
@@ -220,7 +263,10 @@ void daisy() {
   sparkleToBlack();
 }
 
-//halloween orange column, purple stars
+///////////////
+// halloween //
+///////////////
+//orange column, purple stars
 void halloween() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -256,7 +302,9 @@ void halloween() {
   sparkleToBlack();
 }//end halloween
 
-//starfield
+///////////////
+// starfield //
+///////////////
 void starfield() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
