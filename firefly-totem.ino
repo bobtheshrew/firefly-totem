@@ -12,7 +12,7 @@
 //putty for switch hole
 //paint power box black / stain grey? x2? use rest of stain?
 
-#define NUM_MODES        18
+#define NUM_MODES        19
 #define LED_PIN     7
 #define NUM_COLUMN_LEDS  64 //0-63
 #define NUM_STAR_LEDS    16 //64-79
@@ -99,10 +99,6 @@ void setup() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
   //DEBUG - Direct Calls
-  //blueAndVioletChasers();
-  //daisy();
-  //halloween();
-  americanCrackles();
   fallingLeaves();
 
   for (int i = 0; i < NUM_MODES; i++) {
@@ -161,6 +157,9 @@ void loop() {
       case 17:
         fallingLeaves();
         break;
+      case 18:
+        americanCrackles();
+        break;
       default:
         // statements
         break;
@@ -175,14 +174,14 @@ void loop() {
 ////////////////////
 void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
   int i = 0;
-  CRGB colors[]={color1,color2,color3};
+  CRGB colors[] = {color1, color2, color3};
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
     fadeAFrame();
     //random sparkles
     r2 = random(0, NUM_LEDS);
-    leds[r2] = colors[i%3];
+    leds[r2] = colors[i % 3];
     delay(36);
     FastLED.show();
     i++;
@@ -193,13 +192,25 @@ void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
 ///////////////////////
 // American Crackles //
 ///////////////////////
-void americanCrackles(){
-  threeCrackles(CRGB::Red,CRGB::White,CRGB::Blue);
+void americanCrackles() {
+  threeCrackles(CRGB::Red, CRGB::White, CRGB::Blue);
 }
 
 ////////////////////
 // Falling Leaves //
 ////////////////////
+void fallingLeavesInit(Particle *leaves, int NUM_LEAVES) {
+  //initialize leaves
+  for (int j = 0; j < NUM_LEAVES; j++) {
+    int r = random(0, 100);
+    //start leaves: placedat top, random state, not moving
+    //leaves[j] = {64 + (j), r, false};
+    //start leaves: randomly placed near bottom, black, moving
+    r = random(0, 32);
+    leaves[j] = {r, 99, true};
+  }
+}
+
 void fallingLeaves() {
   int i = 0;
   //leaves
@@ -208,55 +219,61 @@ void fallingLeaves() {
 
   // maple leaf progression
   CRGB leafProgression[100];
-  fill_gradient (leafProgression, 100, CHSV(96,255,196), CHSV(0,255,128), CHSV(32,255,64), TGradientDirectionCode::SHORTEST_HUES);
+  fill_gradient (leafProgression, 100, CHSV(96, 255, 196), CHSV(0, 255, 128), CHSV(32, 255, 64), TGradientDirectionCode::SHORTEST_HUES);
+  leafProgression[99] = CRGB::Black;
 
-  //initialize leaves
-  for (int j = 0; j < NUM_LEAVES; j++) {
-    int r = random(0,100);
-    //everyother at the top of the tree
-    //leaves[j] = {65 + (j * 2), r, false};
-    //full top
-    leaves[j] = {64 + (j), r, false};
-  }
+  fallingLeavesInit(leaves, NUM_LEAVES);
 
-  doneMillis = millis() + MODE_SHOW_MILLIS + MODE_SHOW_MILLIS;
-  while (doneMillis > millis())
+  int NUM_FALLS = 3;
+  int CNT_FALLS = 0;
+  int leavesOnGround = 0;
+  while (NUM_FALLS >= CNT_FALLS)
   {
-    //start black
+    //start frame with black canvas
     fill_solid (leds, NUM_LEDS, black);
-    //TODO fade in
 
-    //Fall
+    //update all the leaves this frame
     for (int f = 0; f < NUM_LEAVES; f++) {
+
       //age a leaf, start falling if brown
-        if (leaves[f].color < 99) {
-          leaves[f].color++;
-        } else {
-          leaves[f].moving = true;
-        }
+      if ((leaves[f].color < 98)) {
+        leaves[f].color++;
+      } else {
+        leaves[f].moving = true;
+      }
 
       //fall a bit if needed, every other
-      if (leaves[f].idx > 0 && leaves[f].moving  && (f%2==i%2)) {
+      if (leaves[f].idx > 0 && leaves[f].moving  && (f % 2 == i % 2)) {
         leaves[f].idx--;
       }
 
       //reset leaf if at the bottom
       if (leaves[f].idx == 0) {
-        //every other
-        //leaves[f] = {65 + (f * 2), 0, false};
-        //full top
-        leaves[f] = {64 + (f), 0, false};
+        //reset a leaf
+        leavesOnGround++;
+        if (NUM_FALLS > CNT_FALLS) {  //skip last reset
+          leaves[f] = {64 + (f), 0, false};          
+        }
+      }
+
+      //count complete falls
+      if (leavesOnGround == NUM_LEAVES)
+      {
+        leavesOnGround = 0;
+        //reinitilize leaves
+        //fallingLeavesInit(leaves, NUM_LEAVES);
+        CNT_FALLS++;
       }
 
       //add to display
       //skip over other leaves in the top of the tree
-        //if it's not (odd, more than 64, and moving) unless it's black
-        if ((!( (leaves[f].idx%2!=0) && (leaves[f].idx>64) && leaves[f].moving ))  || (leds[leaves[f].idx]==CRGB(0,0,0))){
-            leds[leaves[f].idx] = leafProgression[leaves[f].color];
-        }
+      //if it's not (odd, more than 64, and moving) unless it's black
+      if ((!( (leaves[f].idx % 2 != 0) && (leaves[f].idx > 64) && leaves[f].moving ))  || (leds[leaves[f].idx] == CRGB(0, 0, 0))) {
+        leds[leaves[f].idx] = leafProgression[leaves[f].color];
+      }
+    }//end for
 
 
-    }
     delay(90);
     FastLED.show();
     i++;
