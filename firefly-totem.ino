@@ -12,7 +12,7 @@
 //putty for switch hole
 //paint power box black / stain grey? x2? use rest of stain?
 
-#define NUM_MODES        19
+#define NUM_MODES        20
 #define LED_PIN     7
 #define NUM_COLUMN_LEDS  64 //0-63
 #define NUM_STAR_LEDS    16 //64-79
@@ -31,8 +31,8 @@ CRGB orange = CRGB::OrangeRed;
 CRGB purples[] = {CRGB::Indigo, CRGB::Violet, CRGB::Purple};
 CRGB chartreuse = CRGB::Chartreuse;
 
-int min = 0;
-int max = NUM_LEDS - 1;
+int minIdx = 0;
+int maxIdx = NUM_LEDS - 1;
 int r[NUM_FIREFLIES];
 int modes[NUM_MODES];
 int r2 = 0;
@@ -99,6 +99,7 @@ void setup() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
   //DEBUG - Direct Calls
+  christmasCrackles();
   fallingLeaves();
 
   for (int i = 0; i < NUM_MODES; i++) {
@@ -160,40 +161,34 @@ void loop() {
       case 18:
         americanCrackles();
         break;
+      case 19:
+        christmasCrackles();
+        break;
       default:
         // statements
         break;
     }//end switch
   }//end for
 }//end loop
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
 
-////////////////////
-// Three Crackles //
-////////////////////
-void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
-  int i = 0;
-  CRGB colors[] = {color1, color2, color3};
-  doneMillis = millis() + MODE_SHOW_MILLIS;
-  while (doneMillis > millis())
-  {
-    fadeAFrame();
-    //random sparkles
-    r2 = random(0, NUM_LEDS);
-    leds[r2] = colors[i % 3];
-    delay(36);
-    FastLED.show();
-    i++;
-  }
-  fadeToBlack();
-}
+
+
+/////////
+//MODES//
+/////////
 
 ///////////////////////
 // American Crackles //
 ///////////////////////
 void americanCrackles() {
   threeCrackles(CRGB::Red, CRGB::White, CRGB::Blue);
+}
+
+////////////////////////
+// Christmas Crackles //
+////////////////////////
+void christmasCrackles() {
+  threeCrackles(CRGB::Red, CRGB::White, CRGB::Green);
 }
 
 ////////////////////
@@ -281,46 +276,7 @@ void fallingLeaves() {
   fadeToBlack();
 }
 
-//////////////////
-// colorSparkle //
-//////////////////
-void colorSparkle(CHSV color) {
-  for (int i = 1; i < NUM_LEDS; i++) {
-    //iluminate the star w/ 1 pixel streamer
-    if (i < NUM_COLUMN_LEDS + 1) {
-      leds[i - 1] = CRGB(255, 128, 0);
-      leds[i] = white;
-    } else {
-      //leds[i-1] = color;
-      leds[i] = color;
-    }
-    sparkle();
-    delay(18);
-    FastLED.show();
-    fadeAFrame();
-  }
-  sparkleToBlack();
-}
 
-///////////////////
-// randomSparkle //
-///////////////////
-void randomSparkle() {
-  doneMillis = millis() + MODE_SHOW_MILLIS;
-  while (doneMillis > millis())
-  {
-    int random_hue = random(0, 265);
-    Serial.print(random_hue);
-    Serial.println();
-    CHSV color = CHSV(random_hue, 255, 255);
-    colorSparkle(color);
-    //Serial.print(color.r);
-    //Serial.print(color.g);
-    //Serial.print(color.b);
-
-
-  }
-}
 ///////////
 // daisy //
 ///////////
@@ -433,7 +389,7 @@ void fireFlies()
   //init firefly locaitons
   for (int j = 0; j < 4; j++)
   {
-    r[j] = random(min, max);
+    r[j] = random(minIdx, maxIdx);
   }
 
   doneMillis = millis() + (MODE_SHOW_MILLIS);
@@ -466,7 +422,7 @@ void fireFlies()
       //TODO: 2 cycles?
       if (brightness < 1)
       {
-        r[j] = random(min, max);
+        r[j] = random(minIdx, maxIdx);
       }
     }//end for
 
@@ -753,7 +709,7 @@ void justCrackles() {
   {
     fadeAFrame();
     //random sparkles
-    r2 = random(min, max);
+    r2 = random(minIdx, maxIdx);
     leds[r2] = white;
     delay(36);
     FastLED.show();
@@ -781,20 +737,7 @@ void blueAndVioletChasers() {
   fadeToBlack();
 }
 
-void twoChasers(CRGB color1, CRGB color2) {
-  doneMillis = millis() + MODE_SHOW_MILLIS;
-  while (doneMillis > millis())
-  {
-    static int i = 0;
-    leds[(i) % NUM_LEDS] = color1;
-    leds[(i + 44) % NUM_LEDS] = color2;
-    delay(36);
-    FastLED.show();
-    fadeAll(200);
-    i++;
-  }
-  fadeToBlack();
-}
+
 
 //TV Static
 void tvStatic() {
@@ -850,6 +793,91 @@ void tvStatic() {
   fadeToBlack();
 }
 
+
+/////////////
+//UTILITIES//
+/////////////
+
+////////////////////
+// Three Crackles //
+////////////////////
+void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
+  int i = 0;
+  CRGB colors[] = {color1, color2, color3};
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    fadeAFrame();
+    //random sparkles
+    r2 = random(0, NUM_LEDS);
+    leds[r2] = colors[i % 3];
+    delay(36);
+    FastLED.show();
+    i++;
+  }
+  fadeToBlack();
+}
+
+//////////////////
+// colorSparkle //
+//////////////////
+void colorSparkle(CHSV color) {
+  for (int i = 1; i < NUM_LEDS; i++) {
+    //iluminate the star w/ 1 pixel streamer
+    if (i < NUM_COLUMN_LEDS + 1) {
+      leds[i - 1] = CRGB(255, 128, 0);
+      leds[i] = white;
+    } else {
+      //leds[i-1] = color;
+      leds[i] = color;
+    }
+    sparkle();
+    delay(18);
+    FastLED.show();
+    fadeAFrame();
+  }
+  sparkleToBlack();
+}
+
+///////////////////
+// randomSparkle //
+///////////////////
+void randomSparkle() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    int random_hue = random(0, 265);
+    Serial.print(random_hue);
+    Serial.println();
+    CHSV color = CHSV(random_hue, 255, 255);
+    colorSparkle(color);
+    //Serial.print(color.r);
+    //Serial.print(color.g);
+    //Serial.print(color.b);
+
+
+  }
+}
+
+void twoChasers(CRGB color1, CRGB color2) {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    static int i = 0;
+    leds[(i) % NUM_LEDS] = color1;
+    leds[(i + 44) % NUM_LEDS] = color2;
+    delay(36);
+    FastLED.show();
+    fadeAll(200);
+    i++;
+  }
+  fadeToBlack();
+}
+
+
+
+
+
 //////////
 // WAVE //
 //////////
@@ -876,7 +904,7 @@ int wave(int i, int lo, int hi, float amp, int offset)
 void sparkle()
 {
   //random sparkles
-  r2 = random(min, max);
+  r2 = random(minIdx, maxIdx);
   if (leds[r2].getAverageLight() != 0)
   {
     leds[r2].maximizeBrightness();
@@ -887,7 +915,7 @@ void sparkle()
 void crackle()
 {
   //random white crackles
-  r2 = random(min, max);
+  r2 = random(minIdx, maxIdx);
   if (leds[r2].getAverageLight() != 0)
   {
     leds[r2] = white;
