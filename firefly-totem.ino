@@ -44,6 +44,37 @@ struct Particle {
   int color;
   bool moving;
 };
+
+//needs a function before defining array of functions
+void compilerNecessity(){}
+
+typedef void (*GeneralFunction) ();
+
+// array of function pointers
+GeneralFunction doMode [] =
+ {
+        americanCrackles,
+        blueAndVioletChasers,
+        blueStreaks,
+        christmasCrackles,
+        daisy,
+        fallingLeaves,
+        fireFlies,
+        halloween,
+        justCrackles,
+        longRainbowPulses,
+        pingPongRainbow,
+        pingPongWhite,
+        rainbowChasers,
+        rainbowCrackle,
+        redYellowChasers,
+        reverseRainbowChasers,
+        rotatingGradient,
+        starfield,
+        tvStatic,
+        yellowSparkle        
+ };
+ 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                          SETUP                                                   //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,12 +115,16 @@ void setup() {
   }
 
   //shuffle the mode order
+
+  /*
   for (int i = 0; i < NUM_MODES; i++) {
     int n = random(0, NUM_MODES);  // Integer from 0 to NUM_MODES-1
     int temp = modes[n];
     modes[n] =  modes[i];
     modes[i] = temp;
   }
+
+  */
   Serial.print("Setup complete.");
   Serial.println();
 }//end init
@@ -97,77 +132,14 @@ void setup() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        LOOP                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void loop() {
   //DEBUG - Direct Calls
-  christmasCrackles();
-  fallingLeaves();
+  //christmasCrackles();
+  //fallingLeaves();
 
   for (int i = 0; i < NUM_MODES; i++) {
-    switch (modes[i]) {
-      case 0:
-        starfield();
-        break;
-      case 1:
-        fireFlies();
-        break;
-      case 2:
-        yellowSparkle();
-        break;
-      case 3:
-        blueStreaks();
-        break;
-      case 4:
-        rainbowCrackle();
-        break;
-      case 5:
-        rainbowChasers();
-        break;
-      case 6:
-        pingPongWhite();
-        break;
-      case 7:
-        reverseRainbowChasers();
-        break;
-      case 8:
-        pingPongRainbow();
-        break;
-      case 9:
-        rotatingGradient();
-        break;
-      case 10:
-        longRainbowPulses();
-        break;
-      case 11:
-        redYellowChasers();
-        break;
-      case 12:
-        justCrackles();
-        break;
-      case 13:
-        blueAndVioletChasers();
-        break;
-      case 14:
-        tvStatic();
-        break;
-      case 15:
-        halloween();
-        break;
-      case 16:
-        daisy();
-        break;
-      case 17:
-        fallingLeaves();
-        break;
-      case 18:
-        americanCrackles();
-        break;
-      case 19:
-        christmasCrackles();
-        break;
-      default:
-        // statements
-        break;
-    }//end switch
+    doMode[modes[i]]();
   }//end for
 }//end loop
 
@@ -183,6 +155,8 @@ void loop() {
 void americanCrackles() {
   threeCrackles(CRGB::Red, CRGB::White, CRGB::Blue);
 }
+
+
 
 ////////////////////////
 // Christmas Crackles //
