@@ -12,13 +12,13 @@
 //putty for switch hole
 //paint power box black / stain grey? x2? use rest of stain?
 
-#define NUM_MODES        20
-#define LED_PIN     7
+#define NUM_MODES        22
+#define LED_PIN          7
 #define NUM_COLUMN_LEDS  64 //0-63
 #define NUM_STAR_LEDS    16 //64-79
 #define NUM_LEDS         80 //64+16
 #define NUM_FIREFLIES    4
-#define MODE_SHOW_MILLIS 20000  //number of millis to show a mode
+#define MODE_SHOW_MILLIS 30000  //number of millis to show a mode
 
 CRGB leds[NUM_LEDS];
 
@@ -63,6 +63,7 @@ GeneralFunction doMode [] =
         halloween,
         justCrackles,
         longRainbowPulses,
+        pingPongHeart,
         pingPongRainbow,
         pingPongWhite,
         rainbowChasers,
@@ -72,6 +73,7 @@ GeneralFunction doMode [] =
         rotatingGradient,
         starfield,
         tvStatic,
+        twoChasersRedPink,
         yellowSparkle        
  };
  
@@ -137,18 +139,34 @@ void loop() {
   //DEBUG - Direct Calls
   //christmasCrackles();
   //fallingLeaves();
+  showHTMLColorCodes();
+  twoChasersRedPink();
+  pingPongHeart();
 
   for (int i = 0; i < NUM_MODES; i++) {
     doMode[modes[i]]();
   }//end for
 }//end loop
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        MODES                                                     //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-/////////
-//MODES//
-/////////
-
+void showHTMLColorCodes() {
+  CRGB::HTMLColorCode s[]={CRGB::AliceBlue,CRGB::Amethyst,CRGB::AntiqueWhite,CRGB::Aqua,CRGB::Aquamarine,CRGB::Azure,CRGB::Beige,CRGB::Bisque,CRGB::Black,CRGB::BlanchedAlmond,CRGB::Blue,CRGB::BlueViolet,CRGB::Brown,CRGB::BurlyWood,CRGB::CadetBlue,CRGB::Chartreuse,CRGB::Chocolate,CRGB::Coral,CRGB::CornflowerBlue,CRGB::Cornsilk,CRGB::Crimson,CRGB::Cyan,CRGB::DarkBlue,CRGB::DarkCyan,CRGB::DarkGoldenrod,CRGB::DarkGray,CRGB::DarkGrey,CRGB::DarkGreen,CRGB::DarkKhaki,CRGB::DarkMagenta,CRGB::DarkOliveGreen,CRGB::DarkOrange,CRGB::DarkOrchid,CRGB::DarkRed,CRGB::DarkSalmon,CRGB::DarkSeaGreen,CRGB::DarkSlateBlue,CRGB::DarkSlateGray,CRGB::DarkSlateGrey,CRGB::DarkTurquoise,CRGB::DarkViolet,CRGB::DeepPink,CRGB::DeepSkyBlue,CRGB::DimGray,CRGB::DimGrey,CRGB::DodgerBlue,CRGB::FireBrick,CRGB::FloralWhite,CRGB::ForestGreen,CRGB::Fuchsia,CRGB::Gainsboro,CRGB::GhostWhite,CRGB::Gold,CRGB::Goldenrod,CRGB::Gray,CRGB::Grey,CRGB::Green,CRGB::GreenYellow,CRGB::Honeydew,CRGB::HotPink,CRGB::IndianRed,CRGB::Indigo,CRGB::Ivory,CRGB::Khaki,CRGB::Lavender,CRGB::LavenderBlush,CRGB::LawnGreen,CRGB::LemonChiffon,CRGB::LightBlue,CRGB::LightCoral,CRGB::LightCyan,CRGB::LightGoldenrodYellow,CRGB::LightGreen,CRGB::LightGrey,CRGB::LightPink,CRGB::LightSalmon,CRGB::LightSeaGreen,CRGB::LightSkyBlue,CRGB::LightSlateGray,CRGB::LightSlateGrey,CRGB::LightSteelBlue,CRGB::LightYellow,CRGB::Lime,CRGB::LimeGreen,CRGB::Linen,CRGB::Magenta,CRGB::Maroon,CRGB::MediumAquamarine,CRGB::MediumBlue,CRGB::MediumOrchid,CRGB::MediumPurple,CRGB::MediumSeaGreen,CRGB::MediumSlateBlue,CRGB::MediumSpringGreen,CRGB::MediumTurquoise,CRGB::MediumVioletRed,CRGB::MidnightBlue,CRGB::MintCream,CRGB::MistyRose,CRGB::Moccasin,CRGB::NavajoWhite,CRGB::Navy,CRGB::OldLace,CRGB::Olive,CRGB::OliveDrab,CRGB::Orange,CRGB::OrangeRed,CRGB::Orchid,CRGB::PaleGoldenrod,CRGB::PaleGreen,CRGB::PaleTurquoise,CRGB::PaleVioletRed,CRGB::PapayaWhip,CRGB::PeachPuff,CRGB::Peru,CRGB::Pink,CRGB::Plaid,CRGB::Plum,CRGB::PowderBlue,CRGB::Purple,CRGB::Red,CRGB::RosyBrown,CRGB::RoyalBlue,CRGB::SaddleBrown,CRGB::Salmon,CRGB::SandyBrown,CRGB::SeaGreen,CRGB::Seashell,CRGB::Sienna,CRGB::Silver,CRGB::SkyBlue,CRGB::SlateBlue,CRGB::SlateGray,CRGB::SlateGrey,CRGB::Snow,CRGB::SpringGreen,CRGB::SteelBlue,CRGB::Tan,CRGB::Teal,CRGB::Thistle,CRGB::Tomato,CRGB::Turquoise,CRGB::Violet,CRGB::Wheat,CRGB::White,CRGB::WhiteSmoke,CRGB::Yellow,CRGB::YellowGreen,CRGB::FairyLight,CRGB::FairyLightNCC};
+  doneMillis = millis() + MODE_SHOW_MILLIS+ MODE_SHOW_MILLIS;
+  int i = 0;
+  while (doneMillis > millis())
+  {
+    //Serial.println(i%NUM_LEDS);
+    leds[(i%(NUM_LEDS/2))*2] = s[i%150];
+    i++;
+    delay(100);
+    FastLED.show();
+  }
+}
+  
 ///////////////////////
 // American Crackles //
 ///////////////////////
@@ -491,6 +509,44 @@ void rainbowChasers() {
 }
 
 ///////////////////
+//ping pong heart//
+///////////////////
+//beat rest beat rest rest rest rest rest = 1/8's of a second
+//0    125  250  375
+void pingPongHeart() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+
+  int i = 0;
+  float deg = 0;
+  float rad = 0;
+  int sinI = 0;
+  int redHeart = 0;
+  int secs = 0;
+  while (doneMillis > millis())
+  {
+    deg = ((millis()/30) + 90);
+    rad = deg * PI / 180;
+    sinI = int(((NUM_LEDS) / 2) + (sin(rad) * ((NUM_LEDS) / 2)) );
+    i++;
+    sinI = max(min(sinI, NUM_LEDS - 1), 0);
+    
+    secs = millis() % 1000;
+    if ( ( (secs>0)&&(secs<125) ) ||( (secs>250)&&(secs<375) ) ){
+      redHeart = 255;
+    }else{
+      redHeart = 0;
+    }
+    
+    leds[sinI] = CRGB(redHeart, 0, 0); //CHSV(i%255, 255 , 255);
+    delay(5);
+    FastLED.show();
+    fadeAll(253);
+  }
+  fadeToBlack();
+}
+
+
+///////////////////
 //white ping pong//
 ///////////////////
 void pingPongWhite() {
@@ -694,6 +750,14 @@ void justCrackles() {
 /////////////////////////////
 // Blue and Violet Chasers //
 /////////////////////////////
+void twoChasersRedPink() {
+  twoChasers (CRGB::Red, CRGB::Pink);
+  return;
+}
+
+/////////////////////////////
+// Blue and Violet Chasers //
+/////////////////////////////
 void blueAndVioletChasers() {
   twoChasers (CRGB::Blue, CRGB::DarkViolet);
   return;
@@ -833,6 +897,9 @@ void randomSparkle() {
   }
 }
 
+/////////////////
+// TWO CHASERS //
+/////////////////
 void twoChasers(CRGB color1, CRGB color2) {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -847,10 +914,6 @@ void twoChasers(CRGB color1, CRGB color2) {
   }
   fadeToBlack();
 }
-
-
-
-
 
 //////////
 // WAVE //
