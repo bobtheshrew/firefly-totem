@@ -12,16 +12,16 @@
 //putty for switch hole
 //paint power box black / stain grey? x2? use rest of stain?
 
-#define NUM_MODES        22
 #define LED_PIN          7
-#define NUM_COLUMN_LEDS  64 //0-63
-#define NUM_STAR_LEDS    16 //64-79
-#define NUM_LEDS         80 //64+16
+#define NUM_COLUMN_LEDS  64     //0...63
+#define NUM_STAR_LEDS    16     //64...79
+#define NUM_LEDS         80     //64 + 16
 #define NUM_FIREFLIES    4
 #define MODE_SHOW_MILLIS 30000  //number of millis to show a mode
 
-CRGB leds[NUM_LEDS];
+CRGB leds[NUM_LEDS];            //Full LED array
 
+//convenience colors
 CRGB black = CRGB::Black;
 CRGB green = CRGB::Green;
 CRGB blue = CRGB::Blue;
@@ -29,16 +29,17 @@ CRGB yellow = CRGB::Yellow;
 CRGB white = CRGB::NavajoWhite;
 CRGB orange = CRGB::OrangeRed;
 CRGB purples[] = {CRGB::Indigo, CRGB::Violet, CRGB::Purple};
-CRGB chartreuse = CRGB::Chartreuse;
+CRGB pinks[] = {CRGB::Brown, CRGB::Coral, CRGB::Crimson};
+CRGB chartreuse = CRGB::Chartreuse;  //
 
 int minIdx = 0;
 int maxIdx = NUM_LEDS - 1;
 int r[NUM_FIREFLIES];
-int modes[NUM_MODES];
 int r2 = 0;
 static uint8_t hue = 0;
 unsigned long doneMillis = 0; //var for mode end times
 
+//Used by falling leaves
 struct Particle {
   int idx;
   int color;
@@ -50,6 +51,7 @@ void compilerNecessity(){}
 
 typedef void (*GeneralFunction) ();
 
+#define NUM_MODES        25
 // array of function pointers
 GeneralFunction doMode [] =
  {
@@ -61,11 +63,13 @@ GeneralFunction doMode [] =
         fallingLeaves,
         fireFlies,
         halloween,
+        heartBeatChasers,
         justCrackles,
         longRainbowPulses,
         pingPongHeart,
         pingPongRainbow,
         pingPongWhite,
+        pingPongValentine,
         rainbowChasers,
         rainbowCrackle,
         redYellowChasers,
@@ -73,10 +77,11 @@ GeneralFunction doMode [] =
         rotatingGradient,
         starfield,
         tvStatic,
-        twoChasersRedPink,
+        valentineChasers,
+        valentineCrackles,
         yellowSparkle        
  };
- 
+ int modes[NUM_MODES];
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                          SETUP                                                   //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +102,7 @@ void setup() {
 
   // lights Initialization
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  
   leds[10] = CRGB(255, 0, 0);
   FastLED.show();
   delay(200);
@@ -117,8 +123,6 @@ void setup() {
   }
 
   //shuffle the mode order
-
-  /*
   for (int i = 0; i < NUM_MODES; i++) {
     int n = random(0, NUM_MODES);  // Integer from 0 to NUM_MODES-1
     int temp = modes[n];
@@ -126,7 +130,6 @@ void setup() {
     modes[i] = temp;
   }
 
-  */
   Serial.print("Setup complete.");
   Serial.println();
 }//end init
@@ -137,12 +140,14 @@ void setup() {
 
 void loop() {
   //DEBUG - Direct Calls
-  //christmasCrackles();
-  //fallingLeaves();
-  showHTMLColorCodes();
-  twoChasersRedPink();
+  //showHTMLColorCodes();
   pingPongHeart();
-
+  valentineChasers();
+  pingPongValentine();
+  heartBeatChasers();
+  valentineCrackles();
+  
+  //DISPLAY ALL MODES
   for (int i = 0; i < NUM_MODES; i++) {
     doMode[modes[i]]();
   }//end for
@@ -152,39 +157,49 @@ void loop() {
 //                                        MODES                                                     //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void showHTMLColorCodes() {
-  CRGB::HTMLColorCode s[]={CRGB::AliceBlue,CRGB::Amethyst,CRGB::AntiqueWhite,CRGB::Aqua,CRGB::Aquamarine,CRGB::Azure,CRGB::Beige,CRGB::Bisque,CRGB::Black,CRGB::BlanchedAlmond,CRGB::Blue,CRGB::BlueViolet,CRGB::Brown,CRGB::BurlyWood,CRGB::CadetBlue,CRGB::Chartreuse,CRGB::Chocolate,CRGB::Coral,CRGB::CornflowerBlue,CRGB::Cornsilk,CRGB::Crimson,CRGB::Cyan,CRGB::DarkBlue,CRGB::DarkCyan,CRGB::DarkGoldenrod,CRGB::DarkGray,CRGB::DarkGrey,CRGB::DarkGreen,CRGB::DarkKhaki,CRGB::DarkMagenta,CRGB::DarkOliveGreen,CRGB::DarkOrange,CRGB::DarkOrchid,CRGB::DarkRed,CRGB::DarkSalmon,CRGB::DarkSeaGreen,CRGB::DarkSlateBlue,CRGB::DarkSlateGray,CRGB::DarkSlateGrey,CRGB::DarkTurquoise,CRGB::DarkViolet,CRGB::DeepPink,CRGB::DeepSkyBlue,CRGB::DimGray,CRGB::DimGrey,CRGB::DodgerBlue,CRGB::FireBrick,CRGB::FloralWhite,CRGB::ForestGreen,CRGB::Fuchsia,CRGB::Gainsboro,CRGB::GhostWhite,CRGB::Gold,CRGB::Goldenrod,CRGB::Gray,CRGB::Grey,CRGB::Green,CRGB::GreenYellow,CRGB::Honeydew,CRGB::HotPink,CRGB::IndianRed,CRGB::Indigo,CRGB::Ivory,CRGB::Khaki,CRGB::Lavender,CRGB::LavenderBlush,CRGB::LawnGreen,CRGB::LemonChiffon,CRGB::LightBlue,CRGB::LightCoral,CRGB::LightCyan,CRGB::LightGoldenrodYellow,CRGB::LightGreen,CRGB::LightGrey,CRGB::LightPink,CRGB::LightSalmon,CRGB::LightSeaGreen,CRGB::LightSkyBlue,CRGB::LightSlateGray,CRGB::LightSlateGrey,CRGB::LightSteelBlue,CRGB::LightYellow,CRGB::Lime,CRGB::LimeGreen,CRGB::Linen,CRGB::Magenta,CRGB::Maroon,CRGB::MediumAquamarine,CRGB::MediumBlue,CRGB::MediumOrchid,CRGB::MediumPurple,CRGB::MediumSeaGreen,CRGB::MediumSlateBlue,CRGB::MediumSpringGreen,CRGB::MediumTurquoise,CRGB::MediumVioletRed,CRGB::MidnightBlue,CRGB::MintCream,CRGB::MistyRose,CRGB::Moccasin,CRGB::NavajoWhite,CRGB::Navy,CRGB::OldLace,CRGB::Olive,CRGB::OliveDrab,CRGB::Orange,CRGB::OrangeRed,CRGB::Orchid,CRGB::PaleGoldenrod,CRGB::PaleGreen,CRGB::PaleTurquoise,CRGB::PaleVioletRed,CRGB::PapayaWhip,CRGB::PeachPuff,CRGB::Peru,CRGB::Pink,CRGB::Plaid,CRGB::Plum,CRGB::PowderBlue,CRGB::Purple,CRGB::Red,CRGB::RosyBrown,CRGB::RoyalBlue,CRGB::SaddleBrown,CRGB::Salmon,CRGB::SandyBrown,CRGB::SeaGreen,CRGB::Seashell,CRGB::Sienna,CRGB::Silver,CRGB::SkyBlue,CRGB::SlateBlue,CRGB::SlateGray,CRGB::SlateGrey,CRGB::Snow,CRGB::SpringGreen,CRGB::SteelBlue,CRGB::Tan,CRGB::Teal,CRGB::Thistle,CRGB::Tomato,CRGB::Turquoise,CRGB::Violet,CRGB::Wheat,CRGB::White,CRGB::WhiteSmoke,CRGB::Yellow,CRGB::YellowGreen,CRGB::FairyLight,CRGB::FairyLightNCC};
-  doneMillis = millis() + MODE_SHOW_MILLIS+ MODE_SHOW_MILLIS;
-  int i = 0;
+  //////////////////////
+ // HeartBeatChasers //
+//////////////////////
+void heartBeatChasers() {
+  CRGB color1 = CRGB::Red;
+  CRGB color2 = CRGB::Red;
+  doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
   {
-    //Serial.println(i%NUM_LEDS);
-    leds[(i%(NUM_LEDS/2))*2] = s[i%150];
-    i++;
-    delay(100);
+    static int i = 0;
+    leds[(i) % NUM_LEDS] = color1;
+    leds[(i + 22) % NUM_LEDS] = color2;
+    delay(13);
     FastLED.show();
+    fadeAll(200);
+    i++;
   }
+  fadeToBlack();
 }
-  
-///////////////////////
-// American Crackles //
+
+  ////////////////////////
+ // Valentine Crackles //
+////////////////////////
+void valentineCrackles() {
+  threeCrackles(CRGB::Red, CRGB::White, CRGB::Brown);
+}
+ 
+  ///////////////////////
+ // American Crackles //
 ///////////////////////
 void americanCrackles() {
   threeCrackles(CRGB::Red, CRGB::White, CRGB::Blue);
 }
 
-
-
-////////////////////////
-// Christmas Crackles //
+  ////////////////////////
+ // Christmas Crackles //
 ////////////////////////
 void christmasCrackles() {
   threeCrackles(CRGB::Red, CRGB::White, CRGB::Green);
 }
 
-////////////////////
-// Falling Leaves //
+  ////////////////////
+ // Falling Leaves //
 ////////////////////
 void fallingLeavesInit(Particle *leaves, int NUM_LEAVES) {
   //initialize leaves
@@ -260,7 +275,6 @@ void fallingLeaves() {
       }
     }//end for
 
-
     delay(90);
     FastLED.show();
     i++;
@@ -268,9 +282,8 @@ void fallingLeaves() {
   fadeToBlack();
 }
 
-
-///////////
-// daisy //
+  ///////////
+ // daisy //
 ///////////
 void daisy() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -296,8 +309,8 @@ void daisy() {
   sparkleToBlack();
 }
 
-///////////////
-// halloween //
+  ///////////////
+ // halloween //
 ///////////////
 //orange column, purple stars
 void halloween() {
@@ -335,8 +348,8 @@ void halloween() {
   sparkleToBlack();
 }//end halloween
 
-///////////////
-// starfield //
+  ///////////////
+ // starfield //
 ///////////////
 void starfield() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -373,8 +386,8 @@ void starfield() {
   fadeToBlack();
 }
 
-///////////////
-// Fireflies //
+  ///////////////
+ // Fireflies //
 ///////////////
 void fireFlies()
 {
@@ -425,8 +438,8 @@ void fireFlies()
   fadeToBlack();
 }//end for
 
-///////////////////
-// yellowSparkle //
+  ///////////////////
+ // yellowSparkle //
 ///////////////////
 void yellowSparkle() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -447,9 +460,9 @@ void yellowSparkle() {
   fadeToBlack();
 }
 
-////////////////
-//blue streaks//
-////////////////
+  //////////////////
+ // blue streaks //
+//////////////////
 void blueStreaks() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -467,9 +480,9 @@ void blueStreaks() {
   fadeToBlack();
 }
 
-///////////////////
-//rainbow crackle//
-///////////////////
+  /////////////////////
+ // rainbow crackle //
+/////////////////////
 void rainbowCrackle() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -488,8 +501,8 @@ void rainbowCrackle() {
   fadeToBlack();
 }
 
-/////////////////////
-// Rainbow Chasers //
+  /////////////////////
+ // Rainbow Chasers //
 /////////////////////
 void rainbowChasers() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -508,9 +521,9 @@ void rainbowChasers() {
   fadeToBlack();
 }
 
-///////////////////
-//ping pong heart//
-///////////////////
+  /////////////////////
+ // ping pong heart //
+/////////////////////
 //beat rest beat rest rest rest rest rest = 1/8's of a second
 //0    125  250  375
 void pingPongHeart() {
@@ -545,10 +558,42 @@ void pingPongHeart() {
   fadeToBlack();
 }
 
+  /////////////////////////
+ // ping pong valentine //
+/////////////////////////
+void pingPongValentine() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
 
-///////////////////
-//white ping pong//
-///////////////////
+  float deg = 0;
+  float rad = 0;
+  int sinI = 0;
+
+  float deg2 = 0;
+  float rad2 = 0;
+  int sinI2 = 0;
+  
+  int numPixels = 4;
+  int pixelShift[] = {17,23,31,43,59,67};
+  CRGB colors[] = { CRGB::Red,CRGB::Brown,CRGB::Coral,CRGB::Crimson,CRGB::DarkSalmon,CRGB::DeepPink};
+  
+  while (doneMillis > millis())
+  {
+    for (int i = 0; i< numPixels; i++){
+      deg = ((millis()/pixelShift[i]));
+      rad = deg * PI / 180;
+      sinI = int(((NUM_LEDS) / 2) + (sin(rad) * ((NUM_LEDS) / 2)) );
+      sinI = max(min(sinI, NUM_LEDS - 1), 0);
+      leds[sinI] = colors[i]; 
+    }
+    delay(5);
+    FastLED.show();
+  }
+  fadeToBlack();
+}
+
+  /////////////////////
+ // white ping pong //
+/////////////////////
 void pingPongWhite() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -567,9 +612,9 @@ void pingPongWhite() {
   fadeToBlack();
 }
 
-/////////////////////
-//Rainbow ping pong//
-/////////////////////
+  ///////////////////////
+ // Rainbow ping pong //
+///////////////////////
 void pingPongRainbow() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -588,9 +633,9 @@ void pingPongRainbow() {
   fadeToBlack();
 }
 
-///////////////////////////
-//Reverse Rainbow Chasers//
-///////////////////////////
+  /////////////////////////////
+ // Reverse Rainbow Chasers //
+/////////////////////////////
 void reverseRainbowChasers() {
   doneMillis = millis() + 15000;
   while (doneMillis > millis())
@@ -609,10 +654,9 @@ void reverseRainbowChasers() {
   fadeToBlack();
 }
 
-/////////////////////
-//Rotating Gradient//
-/////////////////////
-
+  ///////////////////////
+ // Rotating Gradient //
+///////////////////////
 //0 is a color
 //NUM_LEDS-1 is a color
 //Other leds in between
@@ -671,26 +715,8 @@ void rotatingGradient() {
   fadeToBlack();
 }
 
-/* //teal bounce
-  for (int i = 0; i < 2; i++)
-  {
-     fadeAFrameFast();
-     for (int j = 0; j < 8; j++){
-       for (int ii = 0; ii < (NUM_LEDS)*2; ii++)
-       {
-       leds[ii]=CHSV(32*j, 255, 255);
-       fadeAll(250);
-       FastLED.show();
-       delay(25);
-       }
-     }
-     //sparkle();
-  }
-  fadeToBlack();
-*/
-
-/////////////////////////
-// Long Rainbow Pulses //
+  /////////////////////////
+ // Long Rainbow Pulses //
 /////////////////////////
 void longRainbowPulses() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -710,8 +736,8 @@ void longRainbowPulses() {
   fadeToBlack();
 }
 
-////////////////////////
-// Red Yellow Chasers //
+  ////////////////////////
+ // Red Yellow Chasers //
 ////////////////////////
 void redYellowChasers() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -730,8 +756,8 @@ void redYellowChasers() {
   fadeToBlack();
 }
 
-///////////////////
-// Just crackles //
+  ///////////////////
+ // Just crackles //
 ///////////////////
 void justCrackles() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -747,37 +773,25 @@ void justCrackles() {
   fadeToBlack();
 }
 
-/////////////////////////////
-// Blue and Violet Chasers //
-/////////////////////////////
-void twoChasersRedPink() {
-  twoChasers (CRGB::Red, CRGB::Pink);
+  ///////////////////////
+ // Valentine Chasers //
+///////////////////////
+void valentineChasers() {
+  twoChasers (CRGB::Red, CRGB::Brown);
   return;
 }
 
-/////////////////////////////
-// Blue and Violet Chasers //
+  /////////////////////////////
+ // Blue and Violet Chasers //
 /////////////////////////////
 void blueAndVioletChasers() {
   twoChasers (CRGB::Blue, CRGB::DarkViolet);
-  return;
-  doneMillis = millis() + MODE_SHOW_MILLIS;
-  while (doneMillis > millis())
-  {
-    static int i = 0;
-    leds[(i) % NUM_LEDS] = CRGB::Blue;
-    leds[(i + 44) % NUM_LEDS] = CRGB::DarkViolet;
-    delay(36);
-    FastLED.show();
-    fadeAll(200);
-    i++;
-  }
   fadeToBlack();
 }
 
-
-
-//TV Static
+  ///////////////
+ // TV Static //
+///////////////
 void tvStatic() {
   int red = 0;
   int green = 0;
@@ -815,15 +829,8 @@ void tvStatic() {
           blue = 0;
           break;
       }
-
-      leds[i] = CRGB(red, green, blue); //CHSV(random(0,256), 255, random(0,256));
-
-      //      red = leds[i].r;
-      //      green = leds[i].g;
-      //      blue = leds[i].b;
-
-      //FastLED.show();
-      //delay(10);
+      
+      leds[i] = CRGB(red, green, blue);
     }
     delay(100);
     FastLED.show();
@@ -831,13 +838,12 @@ void tvStatic() {
   fadeToBlack();
 }
 
+  ////////////////////////////////////////////////////////////////
+ //                         UTILITIES                          //
+////////////////////////////////////////////////////////////////
 
-/////////////
-//UTILITIES//
-/////////////
-
-////////////////////
-// Three Crackles //
+  ////////////////////
+ // Three Crackles //
 ////////////////////
 void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
   int i = 0;
@@ -856,8 +862,8 @@ void threeCrackles(CRGB color1, CRGB color2, CRGB color3) {
   fadeToBlack();
 }
 
-//////////////////
-// colorSparkle //
+  //////////////////
+ // colorSparkle //
 //////////////////
 void colorSparkle(CHSV color) {
   for (int i = 1; i < NUM_LEDS; i++) {
@@ -877,8 +883,8 @@ void colorSparkle(CHSV color) {
   sparkleToBlack();
 }
 
-///////////////////
-// randomSparkle //
+  ///////////////////
+ // randomSparkle //
 ///////////////////
 void randomSparkle() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -897,8 +903,8 @@ void randomSparkle() {
   }
 }
 
-/////////////////
-// TWO CHASERS //
+  /////////////////
+ // TWO CHASERS //
 /////////////////
 void twoChasers(CRGB color1, CRGB color2) {
   doneMillis = millis() + MODE_SHOW_MILLIS;
@@ -915,9 +921,10 @@ void twoChasers(CRGB color1, CRGB color2) {
   fadeToBlack();
 }
 
+  //////////
+ // WAVE //
 //////////
-// WAVE //
-//////////
+//TODO: USAGE
 //i(degrees 0-359, floor, max, amp <1 slows >1 speeds, offset
 int wave(int i, int lo, int hi, float amp, int offset)
 {
@@ -936,7 +943,9 @@ int wave(int i, int lo, int hi, float amp, int offset)
   sinI = max(sinI, lo);
   return sinI;
 }
-
+  /////////////
+ // Sparkle //
+/////////////
 //maximize brightness of random pixles that are not black
 void sparkle()
 {
@@ -948,6 +957,9 @@ void sparkle()
   }
 }
 
+  /////////////
+ // Crackle //
+/////////////
 //random pixles that are not black max to white
 void crackle()
 {
@@ -959,6 +971,9 @@ void crackle()
   }
 }
 
+  ///////////////////////
+ // Fade a Frame Fast //
+///////////////////////
 //fade everyone 1/2 way down
 void fadeAFrameFast()
 {
@@ -968,7 +983,9 @@ void fadeAFrameFast()
   }
 }
 
-
+  //////////////////
+ // Fade a Frame //
+//////////////////
 //fade everyone 1 shade down
 void fadeAFrame()
 {
@@ -980,6 +997,9 @@ void fadeAFrame()
   }
 }
 
+  //////////////
+ // Fade All //
+//////////////
 //fade everyone N/255ths shades down
 void fadeAll(int N)
 {
@@ -989,6 +1009,9 @@ void fadeAll(int N)
   }
 }
 
+  ///////////////////
+ // Fade to Black //
+///////////////////
 //fade everone to black
 void fadeToBlack()
 {
@@ -1004,6 +1027,9 @@ void fadeToBlack()
   }
 }
 
+  //////////////////////
+ // Sparkle to Black //
+//////////////////////
 //fade everone to black
 void sparkleToBlack()
 {
@@ -1022,5 +1048,22 @@ void sparkleToBlack()
   fadeToBlack();
 }
 
+  ///////////////////////////
+ // Show HTML Color Codes //
+///////////////////////////
+void showHTMLColorCodes() {
+  CRGB::HTMLColorCode s[]={
+    CRGB::AliceBlue,CRGB::Amethyst,CRGB::AntiqueWhite,CRGB::Aqua,CRGB::Aquamarine,CRGB::Azure,CRGB::Beige,CRGB::Bisque,CRGB::Black,CRGB::BlanchedAlmond,CRGB::Blue,CRGB::BlueViolet,CRGB::Brown,CRGB::BurlyWood,CRGB::CadetBlue,CRGB::Chartreuse,CRGB::Chocolate,CRGB::Coral,CRGB::CornflowerBlue,CRGB::Cornsilk,CRGB::Crimson,CRGB::Cyan,CRGB::DarkBlue,CRGB::DarkCyan,CRGB::DarkGoldenrod,CRGB::DarkGray,CRGB::DarkGrey,CRGB::DarkGreen,CRGB::DarkKhaki,CRGB::DarkMagenta,CRGB::DarkOliveGreen,CRGB::DarkOrange,CRGB::DarkOrchid,CRGB::DarkRed,CRGB::DarkSalmon,CRGB::DarkSeaGreen,CRGB::DarkSlateBlue,CRGB::DarkSlateGray,CRGB::DarkSlateGrey,CRGB::DarkTurquoise,CRGB::DarkViolet,CRGB::DeepPink,CRGB::DeepSkyBlue,CRGB::DimGray,CRGB::DimGrey,CRGB::DodgerBlue,CRGB::FireBrick,CRGB::FloralWhite,CRGB::ForestGreen,CRGB::Fuchsia,CRGB::Gainsboro,CRGB::GhostWhite,CRGB::Gold,CRGB::Goldenrod,CRGB::Gray,CRGB::Grey,CRGB::Green,CRGB::GreenYellow,CRGB::Honeydew,CRGB::HotPink,CRGB::IndianRed,CRGB::Indigo,CRGB::Ivory,CRGB::Khaki,CRGB::Lavender,CRGB::LavenderBlush,CRGB::LawnGreen,CRGB::LemonChiffon,CRGB::LightBlue,CRGB::LightCoral,CRGB::LightCyan,CRGB::LightGoldenrodYellow,CRGB::LightGreen,CRGB::LightGrey,CRGB::LightPink,CRGB::LightSalmon,CRGB::LightSeaGreen,CRGB::LightSkyBlue,CRGB::LightSlateGray,CRGB::LightSlateGrey,CRGB::LightSteelBlue,CRGB::LightYellow,CRGB::Lime,CRGB::LimeGreen,CRGB::Linen,CRGB::Magenta,CRGB::Maroon,CRGB::MediumAquamarine,CRGB::MediumBlue,CRGB::MediumOrchid,CRGB::MediumPurple,CRGB::MediumSeaGreen,CRGB::MediumSlateBlue,CRGB::MediumSpringGreen,CRGB::MediumTurquoise,CRGB::MediumVioletRed,CRGB::MidnightBlue,CRGB::MintCream,CRGB::MistyRose,CRGB::Moccasin,CRGB::NavajoWhite,CRGB::Navy,CRGB::OldLace,CRGB::Olive,CRGB::OliveDrab,CRGB::Orange,CRGB::OrangeRed,CRGB::Orchid,CRGB::PaleGoldenrod,CRGB::PaleGreen,CRGB::PaleTurquoise,CRGB::PaleVioletRed,CRGB::PapayaWhip,CRGB::PeachPuff,CRGB::Peru,CRGB::Pink,CRGB::Plaid,CRGB::Plum,CRGB::PowderBlue,CRGB::Purple,CRGB::Red,CRGB::RosyBrown,CRGB::RoyalBlue,CRGB::SaddleBrown,CRGB::Salmon,CRGB::SandyBrown,CRGB::SeaGreen,CRGB::Seashell,CRGB::Sienna,CRGB::Silver,CRGB::SkyBlue,CRGB::SlateBlue,CRGB::SlateGray,CRGB::SlateGrey,CRGB::Snow,CRGB::SpringGreen,CRGB::SteelBlue,CRGB::Tan,CRGB::Teal,CRGB::Thistle,CRGB::Tomato,CRGB::Turquoise,CRGB::Violet,CRGB::Wheat,CRGB::White,CRGB::WhiteSmoke,CRGB::Yellow,CRGB::YellowGreen,CRGB::FairyLight,CRGB::FairyLightNCC};
+  //doneMillis = millis() + MODE_SHOW_MILLIS+ MODE_SHOW_MILLIS;
+  for (int j = 0; j<15; j++){
+    for (int i = 0; i<10; i++){
+      leds[(i*5)+5] = s[i+(j*10)];
+    FastLED.show();
+    }
+    delay(1000);
+  }
+}//end method
+
+//REFERENCE
 //Color Chart https://github.com/FastLED/FastLED/wiki/Pixel-reference#chsv
 // EOF
