@@ -51,7 +51,7 @@ void compilerNecessity(){}
 
 typedef void (*GeneralFunction) ();
 
-#define NUM_MODES        25
+#define NUM_MODES        29
 // array of function pointers
 GeneralFunction doMode [] =
  {
@@ -62,6 +62,7 @@ GeneralFunction doMode [] =
         daisy,
         fallingLeaves,
         fireFlies,
+        fullHeartbeat,
         halloween,
         heartBeatChasers,
         justCrackles,
@@ -76,6 +77,9 @@ GeneralFunction doMode [] =
         reverseRainbowChasers,
         rotatingGradient,
         starfield,
+        stPatrickCrackles,
+        stPatrickFlag,
+        stPatrickRainbow,
         tvStatic,
         valentineChasers,
         valentineCrackles,
@@ -97,7 +101,7 @@ void setup() {
   // different seed numbers each time the sketch runs.
   // randomSeed() will then shuffle the random function.
   int random_seed = analogRead(0) + analogRead(1) + analogRead(2) + analogRead(3) + analogRead(4) + analogRead(5) + analogRead(6) + analogRead(7);
-  Serial.print(random_seed);
+  Serial.println(random_seed);
   randomSeed(random_seed);
 
   // lights Initialization
@@ -141,11 +145,9 @@ void setup() {
 void loop() {
   //DEBUG - Direct Calls
   //showHTMLColorCodes();
-  pingPongHeart();
-  valentineChasers();
-  pingPongValentine();
-  heartBeatChasers();
-  valentineCrackles();
+  stPatrickRainbow();
+  stPatrickCrackles();
+  stPatrickFlag();
   
   //DISPLAY ALL MODES
   for (int i = 0; i < NUM_MODES; i++) {
@@ -156,6 +158,93 @@ void loop() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        MODES                                                     //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  ///////////////
+ // stPatrickRainbow //
+///////////////
+void stPatrickRainbow() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    static int i = 0;
+    //NUM_COLUMN_LEDS  // 64
+    //NUM_STAR_LEDS    // 16
+
+    //TODO
+    //for (int j = 0; j < 8; j++){
+    //}
+    int star = max(min(NUM_COLUMN_LEDS + (i % NUM_STAR_LEDS), NUM_LEDS - 1), 0);
+    int star2 = max(min(NUM_COLUMN_LEDS + ((i + (NUM_STAR_LEDS / 2)) % NUM_STAR_LEDS), NUM_LEDS - 1), 0);
+
+    int column = max(min(NUM_COLUMN_LEDS - (i % NUM_COLUMN_LEDS), NUM_LEDS - 1), 0);
+    int column2 = max(min(NUM_COLUMN_LEDS - ((i + (NUM_COLUMN_LEDS * 1 / 2)) % NUM_COLUMN_LEDS), NUM_LEDS - 1), 0);
+    int column3 = max(min(NUM_COLUMN_LEDS - ((i + (NUM_COLUMN_LEDS * 3 / 4)) % NUM_COLUMN_LEDS), NUM_LEDS - 1), 0);
+    int column4 = max(min(NUM_COLUMN_LEDS - ((i + (NUM_COLUMN_LEDS * 1 / 4)) % NUM_COLUMN_LEDS), NUM_LEDS - 1), 0);
+
+    leds[star] = CHSV((((star-NUM_COLUMN_LEDS)*16)+(i*2))%255, 255, 255);
+    leds[star2] = CHSV((((star2-NUM_COLUMN_LEDS)*16)+(i*2))%255, 255, 255);
+
+    //whole column black
+    for(int j = 0; j < NUM_COLUMN_LEDS; j++){
+          leds[j] = black;   
+    }
+
+    //four coins
+    leds[column] = yellow; //  CHSV(0, 0, 255);
+    leds[column2] = yellow; // CHSV(0, 0, 255);
+    leds[column3] = yellow; // CHSV(0, 0, 255);
+    leds[column4] = yellow; // CHSV(0, 0, 255);
+
+    //cloud
+    leds[64] = white; // CHSV(0, 0, 255);
+    //leds[65] = white; // CHSV(0, 0, 255);
+
+    fadeAFrameFast();
+    delay(50);
+    FastLED.show();
+    i++;
+  }
+  fadeToBlack();
+}
+
+
+  //////////////////
+ // threeSection //
+//////////////////
+void threeSection(CRGB color1, CRGB color2, CRGB color3) {
+    //NUM_COLUMN_LEDS  // 64
+    //NUM_STAR_LEDS    // 16
+    for (int i = 0; i < NUM_LEDS; i++) {
+      //iluminate the star
+      if (i < NUM_COLUMN_LEDS) {
+        leds[i] = color1;
+      } else if (i < (NUM_COLUMN_LEDS + 2)) {
+        leds[i] = color2;
+      } else {
+        leds[i] = color3;
+      }
+      sparkle();
+      FastLED.show();
+      delay(32);
+      fadeAFrame();
+    }//end for
+}
+
+  ///////////////////
+ // stPatrickFlag //
+///////////////////
+void stPatrickFlag() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    threeSection( green,  white,  orange);
+    threeSection( white,  orange,  green);
+    threeSection( orange,  green,  white);
+  }//end while
+  sparkleToBlack();
+}
+
 
   //////////////////////
  // HeartBeatChasers //
@@ -175,6 +264,13 @@ void heartBeatChasers() {
     i++;
   }
   fadeToBlack();
+}
+
+  ////////////////////////
+ // Valentine Crackles //
+////////////////////////
+void stPatrickCrackles() {
+  threeCrackles(orange, white, green);
 }
 
   ////////////////////////
@@ -296,7 +392,7 @@ void daisy() {
       if (i < NUM_COLUMN_LEDS) {
         leds[i] = green;
       } else if (i < (NUM_COLUMN_LEDS + 2)) {
-        leds[i] = yellow;
+        leds[i] = orange;
       } else {
         leds[i] = white;
       }
@@ -554,6 +650,38 @@ void pingPongHeart() {
     delay(5);
     FastLED.show();
     fadeAll(253);
+  }
+  fadeToBlack();
+}
+  /////////////////////
+ // full heartbeat //
+/////////////////////
+//beat rest beat rest rest rest rest rest = 1/8's of a second
+//0    125  250  375
+void fullHeartbeat() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+
+  float redHeart = 0;
+  float targetRedHeart = 0;
+  int secs = 0;
+  
+  while (doneMillis > millis())
+  { 
+    secs = millis() % 2000;
+    if ( ( (secs>0)&&(secs<125) ) ||( (secs>250)&&(secs<375) ) ){
+      targetRedHeart = 255;
+    }else{
+      targetRedHeart = 0;
+    }
+
+    redHeart = (redHeart*.99) + (targetRedHeart*.01);
+
+    fill_solid (leds, NUM_LEDS,  CRGB((int)redHeart, 0, 0));
+    
+    //leds[sinI] = CRGB(redHeart, 0, 0); //CHSV(i%255, 255 , 255);
+    delay(5);
+    FastLED.show();
+    //fadeAll(253);
   }
   fadeToBlack();
 }
