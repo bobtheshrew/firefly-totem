@@ -51,15 +51,20 @@ void compilerNecessity(){}
 
 typedef void (*GeneralFunction) ();
 
-#define NUM_MODES        29
+#define NUM_MODES        30
+int SHUFFLE_START = 5; //number of modes to skip before shuffling
 // array of function pointers
 GeneralFunction doMode [] =
  {
+        orangeFade,
+        daisy,
+        stPatrickCrackles,
+        stPatrickFlag,
+        stPatrickRainbow,
         americanCrackles,
         blueAndVioletChasers,
         blueStreaks,
         christmasCrackles,
-        daisy,
         fallingLeaves,
         fireFlies,
         fullHeartbeat,
@@ -77,9 +82,6 @@ GeneralFunction doMode [] =
         reverseRainbowChasers,
         rotatingGradient,
         starfield,
-        stPatrickCrackles,
-        stPatrickFlag,
-        stPatrickRainbow,
         tvStatic,
         valentineChasers,
         valentineCrackles,
@@ -127,8 +129,8 @@ void setup() {
   }
 
   //shuffle the mode order
-  for (int i = 0; i < NUM_MODES; i++) {
-    int n = random(0, NUM_MODES);  // Integer from 0 to NUM_MODES-1
+  for (int i = SHUFFLE_START; i < NUM_MODES; i++) {
+    int n = random(SHUFFLE_START, NUM_MODES);  // Integer from SHUFFLE_START to NUM_MODES-1
     int temp = modes[n];
     modes[n] =  modes[i];
     modes[i] = temp;
@@ -145,9 +147,6 @@ void setup() {
 void loop() {
   //DEBUG - Direct Calls
   //showHTMLColorCodes();
-  stPatrickRainbow();
-  stPatrickCrackles();
-  stPatrickFlag();
   
   //DISPLAY ALL MODES
   for (int i = 0; i < NUM_MODES; i++) {
@@ -160,9 +159,27 @@ void loop() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  ///////////////
+  /////////////////
+ // Orange Fade //
+/////////////////
+void orangeFade() {
+  doneMillis = millis() + MODE_SHOW_MILLIS;
+  while (doneMillis > millis())
+  {
+    static int i = 0;
+    leds[(i) % NUM_LEDS] = CHSV(HSVHue::HUE_ORANGE,0, 255);
+    leds[(i + 22) % NUM_LEDS] =CHSV(16, 255, 255); //CHSV(16, 255, 255-(i%255));
+    delay(13);
+    FastLED.show();
+    fadeAll(200);
+    i++;
+  }
+  fadeToBlack();
+}
+
+  //////////////////////
  // stPatrickRainbow //
-///////////////
+//////////////////////
 void stPatrickRainbow() {
   doneMillis = millis() + MODE_SHOW_MILLIS;
   while (doneMillis > millis())
@@ -224,7 +241,7 @@ void threeSection(CRGB color1, CRGB color2, CRGB color3) {
       } else {
         leds[i] = color3;
       }
-      sparkle();
+      crackle();
       FastLED.show();
       delay(32);
       fadeAFrame();
@@ -392,7 +409,7 @@ void daisy() {
       if (i < NUM_COLUMN_LEDS) {
         leds[i] = green;
       } else if (i < (NUM_COLUMN_LEDS + 2)) {
-        leds[i] = orange;
+        leds[i] = yellow;
       } else {
         leds[i] = white;
       }
