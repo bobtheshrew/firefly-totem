@@ -21,6 +21,13 @@
 //
 //  wider base for blank battery
 
+//little cars white/red, incrementally more
+//Color rotating crackles, vary intensity 
+//Better section breakdown 
+//Turn each type into a frame, globalize particles / variables, apply multiple types?
+//Particles which turn up or down R, G or B 
+
+
 #define LED_PIN          7
 #define NUM_COLUMN_LEDS  64     //0...63
 #define NUM_STAR_LEDS    16     //64...79
