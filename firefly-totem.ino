@@ -1,16 +1,25 @@
 #include <FastLED.h>
 
+//Documentation
+//    topper 100mm sphere 4 petals each level, each level rotated 45deg
+//    petal tube cross section: .82in .85in withslot .44in slot width
+//    leads soldered to strips
+//    tubes cut into 1/4's
+//    pin for main tube / pin holes
+//    caps printed
+//    Wiring: power 20v batt-> Jack w/ cut off (24v) -> voltage step down to 12v -> 12v to board & 2nd step down to 5v -> 5v to LEDs
+//    paint power box black
+
 //TODO:
-//topper 100mm sphere 4each level, each level rotated 45deg
-//tube cross section: .82in .85in withslot .44in slot width
-//solder leads to strips
-//cut tubes in 1/4's
-//pin for main tube / pin holes
-//glue in topper tubes
-//print caps
-//wire in 12v board power supply: power batt->20to12v->12to5v
-//putty for switch hole
-//paint power box black / stain grey? x2? use rest of stain?
+//App: 
+//  BT
+//  Next/Previous
+//  Drop Down for MODES
+//  Pause on MODE
+//  Holliday sets
+//  Holliday MIDIs
+//
+//  wider base for blank battery
 
 #define LED_PIN          7
 #define NUM_COLUMN_LEDS  64     //0...63
@@ -20,6 +29,7 @@
 #define MODE_SHOW_MILLIS 30000  //number of millis to show a mode
 
 CRGB leds[NUM_LEDS];            //Full LED array
+CHSV leds_chsv[NUM_LEDS];       //Full LED array in CHSV for some color operations
 
 //convenience colors
 CRGB black = CRGB::Black;
